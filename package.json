@@ -24,7 +24,7 @@
         "@iobroker/eslint-config": "^2.2.0",
         "@iobroker/testing": "^5.2.2",
         "@iobroker/types": "^7.1.0",
-        "@types/node": "^24.10.1",
+        "@types/node": "^25.0.9",
         "typescript": "^5.9.3"
     },
     "bugs": {
