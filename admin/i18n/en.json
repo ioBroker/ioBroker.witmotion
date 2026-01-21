@@ -1,3 +1,15 @@
 {
-    "COM Port": "COM Port"
+    "Accelerometer": "Accelerometer",
+    "Baud rate": "Baud rate",
+    "Enabled": "Enabled",
+    "Gyroscope": "Gyroscope",
+    "Interval for average value": "Interval for average value",
+    "Magnetometer": "Magnetometer",
+    "Minimum update interval": "Minimum update interval",
+    "Serial port": "Serial port",
+    "Test": "Test",
+    "Time window for calculating the sliding average of sensor values": "Time window for calculating the sliding average of sensor values",
+    "Use 0-360° for angle X": "Use 0-360° for angle X",
+    "Use 0-360° for angle Y": "Use 0-360° for angle Y",
+    "Use 0-360° for angle Z": "Use 0-360° for angle Z"
 }

@@ -1,2 +1,15 @@
 {
+  "Accelerometer": "Accelerometro",
+  "Baud rate": "velocità in baud",
+  "Enabled": "Abilitato",
+  "Gyroscope": "Giroscopio",
+  "Interval for average value": "Intervallo per il valore medio",
+  "Magnetometer": "Magnetometro",
+  "Minimum update interval": "Intervallo minimo di aggiornamento",
+  "Serial port": "Porta seriale",
+  "Test": "Test",
+  "Time window for calculating the sliding average of sensor values": "Finestra temporale per il calcolo della media mobile dei valori dei sensori",
+  "Use 0-360° for angle X": "Utilizzare 0-360° per l'angolo X",
+  "Use 0-360° for angle Y": "Utilizzare 0-360° per l'angolo Y",
+  "Use 0-360° for angle Z": "Utilizzare 0-360° per l'angolo Z"
 }

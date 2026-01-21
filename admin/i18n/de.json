@@ -1,2 +1,15 @@
 {
+  "Accelerometer": "Beschleunigungsmesser",
+  "Baud rate": "Baudrate",
+  "Enabled": "Aktiviert",
+  "Gyroscope": "Gyroskop",
+  "Interval for average value": "Intervall für den Mittelwert",
+  "Magnetometer": "Magnetometer",
+  "Minimum update interval": "Minimales Aktualisierungsintervall",
+  "Serial port": "Serielle Schnittstelle",
+  "Test": "Prüfen",
+  "Time window for calculating the sliding average of sensor values": "Zeitfenster zur Berechnung des gleitenden Mittelwerts der Sensorwerte",
+  "Use 0-360° for angle X": "0-360° für den Winkel X verwenden",
+  "Use 0-360° for angle Y": "Sie 0-360° für den Winkel Y verwenden",
+  "Use 0-360° for angle Z": "Sie 0-360° für den Winkel Z verwenden"
 }

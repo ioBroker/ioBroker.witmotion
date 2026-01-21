@@ -1,2 +1,15 @@
 {
+  "Accelerometer": "Акселерометр",
+  "Baud rate": "Скорость передачи данных",
+  "Enabled": "Включено",
+  "Gyroscope": "Гироскоп",
+  "Interval for average value": "Интервал для среднего значения",
+  "Magnetometer": "Магнитометр",
+  "Minimum update interval": "Минимальный интервал обновления",
+  "Serial port": "Последовательный порт",
+  "Test": "Тест",
+  "Time window for calculating the sliding average of sensor values": "Временной интервал для расчета скользящего среднего значений датчика.",
+  "Use 0-360° for angle X": "0-360° для угла X",
+  "Use 0-360° for angle Y": "0-360° для угла Y",
+  "Use 0-360° for angle Z": "0-360° для угла Z"
 }

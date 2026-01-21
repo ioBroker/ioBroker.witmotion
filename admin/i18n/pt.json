@@ -1,2 +1,15 @@
 {
+  "Accelerometer": "Acelerômetro",
+  "Baud rate": "Taxa de transmissão (baud rate)",
+  "Enabled": "Habilitado",
+  "Gyroscope": "Giroscópio",
+  "Interval for average value": "Intervalo para o valor médio",
+  "Magnetometer": "Magnetômetro",
+  "Minimum update interval": "Intervalo mínimo de atualização",
+  "Serial port": "Porta serial",
+  "Test": "Teste",
+  "Time window for calculating the sliding average of sensor values": "Janela temporal para calcular a média móvel dos valores do sensor.",
+  "Use 0-360° for angle X": "Use 0-360° para o ângulo X.",
+  "Use 0-360° for angle Y": "Use 0-360° para o ângulo Y.",
+  "Use 0-360° for angle Z": "Use 0-360° para o ângulo Z."
 }

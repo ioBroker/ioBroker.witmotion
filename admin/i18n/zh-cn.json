@@ -1,2 +1,15 @@
 {
+  "Accelerometer": "加速度计",
+  "Baud rate": "波特率",
+  "Enabled": "已启用",
+  "Gyroscope": "陀螺仪",
+  "Interval for average value": "平均值区间",
+  "Magnetometer": "磁力计",
+  "Minimum update interval": "最小更新间隔",
+  "Serial port": "串口",
+  "Test": "测试",
+  "Time window for calculating the sliding average of sensor values": "计算传感器值滑动平均值的时间窗口",
+  "Use 0-360° for angle X": "角度 X 使用 0-360° 表示。",
+  "Use 0-360° for angle Y": "角度 Y 的取值范围为 0-360°。",
+  "Use 0-360° for angle Z": "角度 Z 的取值范围为 0-360°。"
 }

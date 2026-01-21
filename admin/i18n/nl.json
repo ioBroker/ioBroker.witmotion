@@ -1,2 +1,15 @@
 {
+  "Accelerometer": "Versnellingsmeter",
+  "Baud rate": "Baudrate",
+  "Enabled": "Ingeschakeld",
+  "Gyroscope": "Gyroscoop",
+  "Interval for average value": "Interval voor gemiddelde waarde",
+  "Magnetometer": "Magnetometer",
+  "Minimum update interval": "Minimale update-interval",
+  "Serial port": "Seriële poort",
+  "Test": "Test",
+  "Time window for calculating the sliding average of sensor values": "Tijdsvenster voor het berekenen van het glijdend gemiddelde van sensorwaarden",
+  "Use 0-360° for angle X": "Gebruik 0-360° voor hoek X.",
+  "Use 0-360° for angle Y": "Gebruik 0-360° voor de Y-hoek.",
+  "Use 0-360° for angle Z": "Gebruik 0-360° voor hoek Z."
 }
