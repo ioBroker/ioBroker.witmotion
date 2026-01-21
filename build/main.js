@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WitMotionAdapter = void 0;
+const node_dgram_1 = require("node:dgram");
 const serialport_1 = require("serialport");
 const adapter_core_1 = require("@iobroker/adapter-core"); // Get common adapter utils
 class WitMotionAdapter extends adapter_core_1.Adapter {
@@ -9,6 +10,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
     lastStates = new Map();
     tempBytes = [];
     isPortOpen = false;
+    udpServer;
     constructor(options = {}) {
         super({
             ...options,
@@ -99,9 +101,10 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
         let receivedData = false;
         const tempBytes = [];
         // test data listener
-        const dataListener = (data) => {
+        testPort.on('data', (data) => {
             const tempData = Buffer.from(data);
             for (const byte of tempData) {
+                console.log(`0x${byte.toString(16).padStart(2, '0')}`);
                 tempBytes.push(byte);
                 if (tempBytes.length === 2 && (tempBytes[0] !== 0x55 || tempBytes[1] !== 0x61)) {
                     tempBytes.shift();
@@ -111,10 +114,9 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
                     receivedData = true;
                 }
             }
-        };
+        });
         // Wait up to 2 seconds for data
         await new Promise(resolve => setTimeout(() => resolve(), 2000));
-        testPort.off('data', dataListener);
         await new Promise(resolve => {
             testPort.close(err => {
                 if (err) {
@@ -130,6 +132,45 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
         }
         return false;
     }
+    openUdpServer(port = 50547) {
+        try {
+            const sock = (0, node_dgram_1.createSocket)('udp4');
+            sock.on('message', async (data) => {
+                await this.setStateAsync('info.connection', true);
+                // Just push the data to handler
+                await this.process(data);
+            });
+            sock.on('error', (err) => this.log.error(`UDP server error: ${err.message || err}`));
+            sock.on('listening', () => {
+                const address = sock.address();
+                this.log.debug(`UDP server listening on ${typeof address === 'string' ? address : `${address.address}:${address.port} for test purposes`}`);
+            });
+            sock.bind(port);
+            this.udpServer = sock;
+        }
+        catch (e) {
+            this.log.error(`Failed to start UDP server: ${e.message || e}`);
+        }
+    }
+    closeUdpServer() {
+        if (!this.udpServer) {
+            return Promise.resolve();
+        }
+        return new Promise(resolve => {
+            try {
+                this.udpServer.close(() => {
+                    this.log.info('UDP server closed');
+                    this.udpServer = undefined;
+                    resolve();
+                });
+            }
+            catch (e) {
+                this.log.warn(`Error closing UDP server: ${e.message || e}`);
+                this.udpServer = undefined;
+                resolve();
+            }
+        });
+    }
     async openPort() {
         await this.closePort();
         this.serialPort = new serialport_1.SerialPort({
@@ -142,35 +183,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             this.log.debug(`Serial port ${this.config.serialPort} opened`);
             this.setState('info.connection', true, true).catch(err => this.log.error(`Cannot set info.connection state: ${err.message || err}`));
         });
-        this.serialPort.on('data', async (data) => {
-            const tempData = Buffer.from(data);
-            for (const byte of tempData) {
-                this.tempBytes.push(byte);
-                if (this.tempBytes.length === 2 && (this.tempBytes[0] !== 0x55 || this.tempBytes[1] !== 0x61)) {
-                    this.tempBytes.shift();
-                    continue;
-                }
-                if (this.tempBytes.length === 20) {
-                    const decodedData = WitMotionAdapter.processData(this.tempBytes.slice(2));
-                    if (this.config.accelerometer) {
-                        await this.setStateIfChangedAsync('acceleration.x', decodedData.acceleration.x, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
-                        await this.setStateIfChangedAsync('acceleration.y', decodedData.acceleration.y, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
-                        await this.setStateIfChangedAsync('acceleration.z', decodedData.acceleration.z, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
-                    }
-                    if (this.config.gyroscope) {
-                        await this.setStateIfChangedAsync('gyroscope.x', decodedData.gyroscope.x, this.config.gyroscopeUpdate, this.config.gyroscopeAverageInterval);
-                        await this.setStateIfChangedAsync('gyroscope.y', decodedData.gyroscope.y, this.config.gyroscopeUpdate, this.config.gyroscopeAverageInterval);
-                        await this.setStateIfChangedAsync('gyroscope.z', decodedData.gyroscope.z, this.config.gyroscopeUpdate, this.config.gyroscopeAverageInterval);
-                    }
-                    if (this.config.magnetometer) {
-                        await this.setStateIfChangedAsync('angle.x', decodedData.angle.x, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360x);
-                        await this.setStateIfChangedAsync('angle.y', decodedData.angle.y, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360y);
-                        await this.setStateIfChangedAsync('angle.z', decodedData.angle.z, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360z);
-                    }
-                    this.tempBytes = [];
-                }
-            }
-        });
+        this.serialPort.on('data', async (data) => this.process(data));
         this.serialPort.on('error', err => {
             this.tempBytes = [];
             this.log.error(`Serial error: ${err.message}`);
@@ -193,6 +206,35 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             this.serialPort = null;
             this.retryOpenPort();
         });
+    }
+    async process(data) {
+        const tempData = Buffer.from(data);
+        for (const byte of tempData) {
+            this.tempBytes.push(byte);
+            if (this.tempBytes.length === 2 && (this.tempBytes[0] !== 0x55 || this.tempBytes[1] !== 0x61)) {
+                this.tempBytes.shift();
+                continue;
+            }
+            if (this.tempBytes.length === 20) {
+                const decodedData = WitMotionAdapter.processData(this.tempBytes.slice(2));
+                if (this.config.accelerometer) {
+                    await this.setStateIfChangedAsync('acceleration.x', decodedData.acceleration.x, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
+                    await this.setStateIfChangedAsync('acceleration.y', decodedData.acceleration.y, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
+                    await this.setStateIfChangedAsync('acceleration.z', decodedData.acceleration.z, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
+                }
+                if (this.config.gyroscope) {
+                    await this.setStateIfChangedAsync('gyroscope.x', decodedData.gyroscope.x, this.config.gyroscopeUpdate, this.config.gyroscopeAverageInterval);
+                    await this.setStateIfChangedAsync('gyroscope.y', decodedData.gyroscope.y, this.config.gyroscopeUpdate, this.config.gyroscopeAverageInterval);
+                    await this.setStateIfChangedAsync('gyroscope.z', decodedData.gyroscope.z, this.config.gyroscopeUpdate, this.config.gyroscopeAverageInterval);
+                }
+                if (this.config.magnetometer) {
+                    await this.setStateIfChangedAsync('angle.x', decodedData.angle.x, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360x);
+                    await this.setStateIfChangedAsync('angle.y', decodedData.angle.y, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360y);
+                    await this.setStateIfChangedAsync('angle.z', decodedData.angle.z, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360z);
+                }
+                this.tempBytes = [];
+            }
+        }
     }
     closePort() {
         if (this.serialPort) {
@@ -288,16 +330,6 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
     // Hilfsfunktion zur Umwandlung von 16-Bit-Werten
     static getSignInt16(value) {
         return value > 0x7fff ? value - 0x10000 : value;
-    }
-    async main() {
-        await this.setStateAsync('info.connection', false, true);
-        if (!this.config.serialPort) {
-            return;
-        }
-        await this.syncAccelerationObjects();
-        await this.syncGyroscopeObjects();
-        await this.syncAngleObjects();
-        this.openPort().catch((err) => this.log.error(`Error opening serial serialPort: ${err.message || err}`));
     }
     async syncAccelerationObjects() {
         const channel = {
@@ -643,6 +675,20 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
                 }
             }
         }
+    }
+    async main() {
+        await this.setStateAsync('info.connection', false, true);
+        if (this.config.test) {
+            // Open UDP port 50547 for test purposes
+            this.openUdpServer(50547);
+        }
+        if (!this.config.serialPort) {
+            return;
+        }
+        await this.syncAccelerationObjects();
+        await this.syncGyroscopeObjects();
+        await this.syncAngleObjects();
+        this.openPort().catch((err) => this.log.error(`Error opening serial serialPort: ${err.message || err}`));
     }
 }
 exports.WitMotionAdapter = WitMotionAdapter;

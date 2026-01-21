@@ -16,4 +16,6 @@ export interface WitMotionAdapterConfig {
     magnetometer360x: boolean;
     magnetometer360y: boolean;
     magnetometer360z: boolean;
+
+    test?: boolean;
 }
