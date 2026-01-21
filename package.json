@@ -39,8 +39,8 @@
     ],
     "scripts": {
         "prepublishOnly": "npm run build",
-        "test:integration": "mocha test/integration.js --exit",
-        "test:package": "mocha test/testPackageFiles.js --exit",
+        "test:integration": "mocha test/adapter.test.js --exit",
+        "test:package": "mocha test/package.test.js --exit",
         "test": "npm run test:integration",
         "lint": "eslint -c eslint.config.mjs",
         "build": "tsc -p tsconfig.build.json",
