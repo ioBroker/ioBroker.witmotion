@@ -38,6 +38,7 @@
         "LICENSE"
     ],
     "scripts": {
+        "prepublishOnly": "npm run build",
         "test:integration": "mocha test/integration.js --exit",
         "test:package": "mocha test/testPackageFiles.js --exit",
         "test": "npm run test:integration",
