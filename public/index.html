@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Datenvisualisierung</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        canvas {
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<h1>Datenvisualisierung</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Typ</th>
+        <th>X</th>
+        <th>Y</th>
+        <th>Z</th>
+    </tr>
+    </thead>
+    <tbody id="data-table">
+    <tr>
+        <td>Beschleunigung</td>
+        <td id="acc-x">-</td>
+        <td id="acc-y">-</td>
+        <td id="acc-z">-</td>
+    </tr>
+    <tr>
+        <td>Gyroskop</td>
+        <td id="gyro-x">-</td>
+        <td id="gyro-y">-</td>
+        <td id="gyro-z">-</td>
+    </tr>
+    <tr>
+        <td>Winkel</td>
+        <td id="angle-x">-</td>
+        <td id="angle-y">-</td>
+        <td id="angle-z">-</td>
+    </tr>
+    </tbody>
+</table>
+
+<canvas id="windrose" width="300" height="300"></canvas>
+
+<script>
+    const ws = new WebSocket('ws://localhost:8080');
+    const canvas = document.getElementById('windrose');
+    const ctx = canvas.getContext('2d');
+
+    ws.onopen = () => {
+        console.log('WebSocket-Verbindung hergestellt');
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
+        document.getElementById('acc-x').textContent = data.Acceleration.X.toFixed(3);
+        document.getElementById('acc-y').textContent = data.Acceleration.Y.toFixed(3);
+        document.getElementById('acc-z').textContent = data.Acceleration.Z.toFixed(3);
+
+        document.getElementById('gyro-x').textContent = data.Gyroscope.X.toFixed(3);
+        document.getElementById('gyro-y').textContent = data.Gyroscope.Y.toFixed(3);
+        document.getElementById('gyro-z').textContent = data.Gyroscope.Z.toFixed(3);
+
+        document.getElementById('angle-x').textContent = data.Angle.X.toFixed(3);
+        document.getElementById('angle-y').textContent = data.Angle.Y.toFixed(3);
+        document.getElementById('angle-z').textContent = data.Angle.Z.toFixed(3);
+
+        drawWindRose(data.Angle.Z);
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket-Fehler:', error);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket-Verbindung geschlossen');
+    };
+
+    function drawWindRose(angleZ) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Windrose zeichnen
+        ctx.beginPath();
+        ctx.arc(150, 150, 100, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        // Himmelsrichtungen hinzufügen
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('N', 150, 50); // Norden
+        ctx.fillText('E', 250, 150); // Osten
+        ctx.fillText('S', 150, 250); // Süden
+        ctx.fillText('W', 50, 150); // Westen
+
+        // Richtungspfeil zeichnen
+        const radians = (angleZ * Math.PI) / 180;
+        const arrowX = 150 + 90 * Math.cos(radians - Math.PI / 2);
+        const arrowY = 150 + 90 * Math.sin(radians - Math.PI / 2);
+
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.lineTo(arrowX, arrowY);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Mittelpunkt
+        ctx.beginPath();
+        ctx.arc(150, 150, 5, 0, 2 * Math.PI);
+        ctx.fillStyle = 'black';
+        ctx.fill();
+
+        // Z-Winkel im Zentrum anzeigen
+        ctx.font = '14px Arial';
+        ctx.fillStyle = 'blue';
+        ctx.fillText(`${angleZ < 0 ? (360 + angleZ).toFixed(1) : angleZ.toFixed(1)}°`, 150, 120);
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+node_modules
+.idea
+tmp
+iob_npm.done
+*.tgz
+BWT901BLE5/
+
+#ignore .commitinfo created by ioBroker release script
+.commitinfo

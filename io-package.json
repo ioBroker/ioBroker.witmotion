@@ -1,0 +1,109 @@
+{
+    "common": {
+        "name": "witmotion",
+        "version": "0.0.1",
+        "news": {
+
+        },
+        "titleLang": {
+            "en": "WitMotion",
+            "de": "WitMotion",
+            "ru": "WitMotion",
+            "pt": "WitMotion",
+            "nl": "WitMotion",
+            "fr": "WitMotion",
+            "it": "WitMotion",
+            "es": "WitMotion",
+            "pl": "WitMotion",
+            "zh-cn": "WitMotion",
+            "uk": "WitMotion"
+        },
+        "desc": {
+            "en": "Read data from WitMotion sensor via USB",
+            "de": "Lesen Sie Daten vom WitMotion-Sensor über USB",
+            "ru": "Чтение данных с датчика WitMotion через USB",
+            "pt": "Leia dados do sensor WitMotion via USB",
+            "nl": "Lees gegevens van WitMotion-sensor via USB",
+            "fr": "Lire les données du capteur WitMotion via USB",
+            "it": "Leggi i dati dal sensore WitMotion tramite USB",
+            "es": "Leer datos del sensor WitMotion a través de USB",
+            "pl": "Odczytaj dane z czujnika WitMotion przez USB",
+            "zh-cn": "通过USB读取WitMotion传感器的数据",
+            "uk": "Читання даних з датчика WitMotion через USB"
+        },
+        "authors": ["bluefox <dogafox@gmail.com>"],
+        "licenseInformation": {
+            "license": "MIT",
+            "type": "free"
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "compact": true,
+        "enabled": true,
+        "readme": "https://github.com/ioBroker/ioBroker.witmotion/blob/master/README.md",
+        "loglevel": "info",
+        "messagebox": true,
+        "icon": "witmotion.png",
+        "adminUI": {
+            "config": "json"
+        },
+        "keywords": ["WitMotion", "Gyroscope"],
+        "connectionType": "local",
+        "dataSource": "push",
+        "tier": 2,
+        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.witmotion/master/admin/witmotion.png",
+        "type": "lighting",
+        "dependencies": [
+            {
+                "js-controller": ">=5.0.19"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=7.6.17"
+            }
+        ]
+    },
+    "native": {
+        "serialPort": "",
+        "baudRate": 115200,
+        "accelerometer": false,
+        "accelerometerUpdate": 1000,
+        "accelerometerAverageInterval": 5000,
+
+        "gyroscope": true,
+        "gyroscopeUpdate": 1000,
+        "gyroscopeAverageInterval": 5000,
+
+        "magnetometer": true,
+        "magnetometerUpdate": 1000,
+        "magnetometerAverageInterval": 5000,
+        "magnetometer360x": false,
+        "magnetometer360y": false,
+        "magnetometer360z": true
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "If connected to cloud",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}

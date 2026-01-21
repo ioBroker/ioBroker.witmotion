@@ -1,0 +1,223 @@
+{
+    "type": "panel",
+    "i18n": true,
+    "items": {
+        "serialPort": {
+            "type": "selectSendTo",
+            "label": "Serial port",
+            "command": "list",
+            "default": "",
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
+        "baudRate": {
+            "newLine": true,
+            "type": "select",
+            "label": "Baud rate",
+            "noTranslation": true,
+            "options": [
+                {
+                    "value": 4800,
+                    "label": "4800"
+                },
+                {
+                    "value": 9600,
+                    "label": "9600"
+                },
+                {
+                    "value": 19200,
+                    "label": "19200"
+                },
+                {
+                    "value": 38400,
+                    "label": "38400"
+                },
+                {
+                    "value": 57600,
+                    "label": "57600"
+                },
+                {
+                    "value": 115200,
+                    "label": "115200"
+                }
+            ],
+            "default": "115200",
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
+        "_test": {
+            "newLine": true,
+            "type": "sendTo",
+            "command": "test",
+            "label": "Test",
+            "variant": "contained",
+            "jsonData": "{ \"serialPort\": \"${data.serialPort}\", \"baudRate\": \"${data.baudRate}\" }",
+            "result": {
+                "Sensor detected": {
+                    "en": "Sensor detected",
+                    "de": "Sensor erkannt",
+                    "ru": "Сенсор обнаружен"
+                }
+            },
+            "error": {
+                "Sensor not detected": {
+                    "en": "Sensor not detected",
+                    "de": "Sensor nicht erkannt",
+                    "ru": "Сенсор не обнаружен"
+                }
+            },
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "showProcess": true,
+            "icon": "send"
+        },
+        "_titleAccelerometer": {
+            "type": "header",
+            "text": "Accelerometer",
+            "size": 4,
+            "newLine": true,
+            "lg": 12,
+            "md": 12,
+            "sm": 12
+        },
+        "accelerometer": {
+            "label": "Enabled",
+            "type": "checkbox",
+            "default": true,
+            "newLine": true,
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
+        "accelerometerUpdate": {
+            "label": "Minimum update interval",
+            "help": "ms",
+            "type": "number",
+            "default": 1000,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.accelerometer"
+        },
+        "accelerometerAverageInterval": {
+            "label": "Interval for average value",
+            "tooltip": "Time window for calculating the sliding average of sensor values",
+            "help": "ms",
+            "type": "number",
+            "default": 5000,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.accelerometer"
+        },
+        "_titleGyroscope": {
+            "type": "header",
+            "text": "Gyroscope",
+            "size": 4,
+            "newLine": true,
+            "lg": 12,
+            "md": 12,
+            "sm": 12
+        },
+        "gyroscope": {
+            "label": "Enabled",
+            "type": "checkbox",
+            "default": true,
+            "newLine": true,
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
+        "gyroscopeUpdate": {
+            "label": "Minimum update interval",
+            "help": "ms",
+            "type": "number",
+            "default": 1000,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.gyroscope"
+        },
+        "agyroscopeAverageInterval": {
+            "label": "Interval for average value",
+            "tooltip": "Time window for calculating the sliding average of sensor values",
+            "help": "ms",
+            "type": "number",
+            "default": 5000,
+            "hidden": "!data.gyroscope",
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
+        "_headerMagnetometer": {
+            "type": "header",
+            "text": "Magnetometer",
+            "size": 4,
+            "newLine": true,
+            "lg": 12,
+            "md": 12,
+            "sm": 12
+        },
+        "magnetometer": {
+            "label": "Enabled",
+            "type": "checkbox",
+            "default": true,
+            "newLine": true,
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
+        "magnetometerUpdate": {
+            "label": "Minimum update interval",
+            "help": "ms",
+            "type": "number",
+            "default": 1000,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.magnetometer"
+        },
+        "magnetometerAverageInterval": {
+            "label": "Interval for average value",
+            "tooltip": "Time window for calculating the sliding average of sensor values",
+            "help": "ms",
+            "type": "number",
+            "default": 5000,
+            "hidden": "!data.magnetometer",
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
+        "magnetometer360x": {
+            "newLine": true,
+            "type": "checkbox",
+            "label": "Use 0-360° for angle X",
+            "default": false,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.magnetometer"
+        },
+        "magnetometer360y": {
+            "type": "checkbox",
+            "label": "Use 0-360° for angle Y",
+            "default": false,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.magnetometer"
+        },
+        "magnetometer360z": {
+            "type": "checkbox",
+            "label": "Use 0-360° for angle Z",
+            "default": false,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.magnetometer"
+        }
+    }
+}
