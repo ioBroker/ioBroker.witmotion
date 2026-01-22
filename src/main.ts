@@ -174,7 +174,7 @@ export class WitMotionAdapter extends Adapter {
             const sock = createSocket('udp4');
 
             sock.on('message', async (data: Buffer): Promise<void> => {
-                await this.setStateAsync('info.connection', true);
+                await this.setStateAsync('info.connection', true, true);
                 // Just push the data to handler
                 await this.process(data);
             });
@@ -448,7 +448,7 @@ export class WitMotionAdapter extends Adapter {
         };
     }
 
-    // Hilfsfunktion zur Umwandlung von 16-Bit-Werten
+    // Helper function to read 16bit values
     static getSignInt16(value: number): number {
         return value > 0x7fff ? value - 0x10000 : value;
     }
@@ -810,13 +810,13 @@ export class WitMotionAdapter extends Adapter {
             this.openUdpServer(50547);
         }
 
-        if (!this.config.serialPort) {
-            return;
-        }
-
         await this.syncAccelerationObjects();
         await this.syncGyroscopeObjects();
         await this.syncAngleObjects();
+
+        if (!this.config.serialPort) {
+            return;
+        }
 
         this.openPort().catch((err: Error) => this.log.error(`Error opening serial serialPort: ${err.message || err}`));
     }

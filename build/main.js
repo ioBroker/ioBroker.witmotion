@@ -104,7 +104,6 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
         testPort.on('data', (data) => {
             const tempData = Buffer.from(data);
             for (const byte of tempData) {
-                console.log(`0x${byte.toString(16).padStart(2, '0')}`);
                 tempBytes.push(byte);
                 if (tempBytes.length === 2 && (tempBytes[0] !== 0x55 || tempBytes[1] !== 0x61)) {
                     tempBytes.shift();
@@ -136,7 +135,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
         try {
             const sock = (0, node_dgram_1.createSocket)('udp4');
             sock.on('message', async (data) => {
-                await this.setStateAsync('info.connection', true);
+                await this.setStateAsync('info.connection', true, true);
                 // Just push the data to handler
                 await this.process(data);
             });
@@ -327,7 +326,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             angle: { x: AngX, y: AngY, z: AngZ },
         };
     }
-    // Hilfsfunktion zur Umwandlung von 16-Bit-Werten
+    // Helper function to read 16bit values
     static getSignInt16(value) {
         return value > 0x7fff ? value - 0x10000 : value;
     }
@@ -682,12 +681,12 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             // Open UDP port 50547 for test purposes
             this.openUdpServer(50547);
         }
-        if (!this.config.serialPort) {
-            return;
-        }
         await this.syncAccelerationObjects();
         await this.syncGyroscopeObjects();
         await this.syncAngleObjects();
+        if (!this.config.serialPort) {
+            return;
+        }
         this.openPort().catch((err) => this.log.error(`Error opening serial serialPort: ${err.message || err}`));
     }
 }

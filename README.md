@@ -13,7 +13,7 @@
 
 ![WT901blecl](image/wit-wt901blecl-5-0.jpg)
 
-Reads data from WT901blecl 5.0 Bluetooth 5.0 9-Axis IMU Sensor (MPU9250) and writes it to ioBroker datapoints.
+Reads data from WT901blecl 5.0 Bluetooth 5.0 9-Axis IMU Sensor (MPU9250) via USB and writes it to ioBroker datapoints.
 
 Following data are read and written to ioBroker:
 - Acceleration X/Y/Z
@@ -30,14 +30,13 @@ Following data are read and written to ioBroker:
 ## Changelog
 
 ### **WORK IN PROGRESS**
-* (@Apollon77/@copilot) Add support for OpenBeken LED datapoints (led_enableAll, led_dimmer, led_temperature, led_basecolor_rgb, led_finalcolor_rgbcw, led_basecolor_rgbcw, led_hue, led_saturation) - enables control of OpenBeken LED devices with automatic topic mapping for /get and /set suffixes
-* (@Apollon77/@copilot) Add PulseTime1-PulseTime16 datapoint support - users can now read and set PulseTime values directly from ioBroker to control relay auto-off timers
+* (@GermanBluefox) Initial commit
 
 ## License
 
 The MIT License (MIT)
 
-Copyright (c) 2026, bluefox <dogafox@gmail.com>
+Copyright (c) 2026, Denis Haev <dogafox@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
