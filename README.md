@@ -28,7 +28,7 @@ Following data are read and written to ioBroker:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 0.0.3 (2026-01-23)
 * (@GermanBluefox) Initial commit
 
 ## License

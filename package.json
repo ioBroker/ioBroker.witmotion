@@ -1,7 +1,7 @@
 {
   "name": "iobroker.witmotion",
   "description": "Read data from WitMotion sensor via USB for ioBroker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "bluefox <dogafox@gmail.com>",
   "homepage": "https://github.com/ioBroker/ioBroker.witmotion",
   "repository": {

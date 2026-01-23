@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "witmotion",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "news": {
+      "0.0.3": {
+        "en": "Initial commit",
+        "de": "Ursprüngliche Verpflichtung",
+        "ru": "Первоначальное обязательство",
+        "pt": "Commit inicial",
+        "nl": "Eerste commit",
+        "fr": "Engagement initial",
+        "it": "Impegno iniziale",
+        "es": "Composición inicial",
+        "pl": "Początkowe zobowiązanie",
+        "uk": "Початкова комісія",
+        "zh-cn": "初步承诺"
+      }
     },
     "titleLang": {
       "en": "WitMotion",
