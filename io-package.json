@@ -69,7 +69,7 @@
     "dataSource": "push",
     "tier": 2,
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.witmotion/master/admin/witmotion.png",
-    "type": "lighting",
+    "type": "utility",
     "dependencies": [
       {
         "js-controller": ">=5.0.19"
