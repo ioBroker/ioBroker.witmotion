@@ -113,8 +113,8 @@ describe.only('witmotion: Test parser', () => {
         let state = await new Promise(resolve =>
             states.getState('witmotion.0.angle.x', (_err, state) => resolve(state)),
         );
-        if (state.val !== 0) {
-            throw new Error(`State witmotion.0.angle.x expected to be "0" but found ${state.val}`);
+        if (!state || state.val !== 0) {
+            throw new Error(`State witmotion.0.angle.x expected to be "0" but found ${state?.val}`);
         }
         state = await new Promise(resolve => states.getState('witmotion.0.angle.y', (_err, state) => resolve(state)));
         if (state.val !== 0.5548095703125) {
