@@ -28,6 +28,7 @@ export class WitMotionAdapter extends Adapter {
                     this.reconnectTimer = null;
                 }
                 await this.closePort();
+                await this.closeUdpServer();
                 callback();
             },
             message: async obj => {
