@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "witmotion",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "news": {
+      "0.0.4": {
+        "en": "Tests fixed",
+        "de": "Prüfverfahren",
+        "ru": "Испытания фиксированные",
+        "pt": "Ensaios fixados",
+        "nl": "Tests vastgesteld",
+        "fr": "Essais fixés",
+        "it": "Test fissi",
+        "es": "Pruebas fijas",
+        "pl": "Badania stałe",
+        "uk": "Тести фіксовані",
+        "zh-cn": "测试已固定"
+      }
     },
     "titleLang": {
       "en": "WitMotion",
