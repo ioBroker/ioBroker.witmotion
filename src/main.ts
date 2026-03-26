@@ -807,6 +807,7 @@ export class WitMotionAdapter extends Adapter {
         await this.setStateAsync('info.connection', false, true);
 
         if (this.config.test) {
+            this.log.info('This is a test, so start UDP server on port 50547');
             // Open UDP port 50547 for test purposes
             this.openUdpServer(50547);
         }

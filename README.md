@@ -9,13 +9,13 @@
 [![Translation status](https://weblate.iobroker.net/widgets/adapters/-/witmotion/svg-badge.svg)](https://weblate.iobroker.net/engage/adapters/?utm_source=widget)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.witmotion.svg)](https://www.npmjs.com/package/iobroker.witmotion)
 
-**This adapter uses Sentry libraries to automatically report exceptions and code errors to the developers.** For more details and for information how to disable the error reporting see [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry)! Sentry reporting is used starting with js-controller 3.0.
+**This adapter uses Sentry libraries to automatically report exceptions and code errors to the developers.** For more details and for information on how to disable the error reporting see [Sentry-Plugin Documentation](https://github.com/ioBroker/plugin-sentry#plugin-sentry)! Sentry reporting is used starting with js-controller 3.0.
 
 ![WT901blecl](image/wit-wt901blecl-5-0.jpg)
 
 Reads data from WT901blecl 5.0 Bluetooth 5.0 9-Axis IMU Sensor (MPU9250) via USB and writes it to ioBroker datapoints.
 
-Following data are read and written to ioBroker:
+The following data are read and written to ioBroker:
 - Acceleration X/Y/Z
 - Gyroscope X/Y/Z
 - Magnetometer X/Y/Z
@@ -28,6 +28,9 @@ Following data are read and written to ioBroker:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) Tests fixed
+
 ### 0.0.3 (2026-01-23)
 * (@GermanBluefox) Initial commit
 

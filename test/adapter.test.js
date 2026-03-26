@@ -77,7 +77,7 @@ describe.only('witmotion: Test parser', () => {
     });
 
     it('witmotion: Check if connected', done => {
-        //sendDataToImitateConnection();
+        sendDataToImitateConnection();
         console.log('Start check connection');
         checkConnection(() => {
             clearInterval(interval);
@@ -87,28 +87,7 @@ describe.only('witmotion: Test parser', () => {
     }).timeout(10000);
 
     it('witmotion: It must see values', async () => {
-        const sock = createSocket('udp4');
-        for (let i = 0; i < data.data.length; i++) {
-            const testData = data.data[i];
-            const arr = [];
-            for (let j = 0; j < testData.length; j++) {
-                arr.push(parseInt(testData[j], 16));
-            }
-            const buf = Buffer.from(arr);
-
-            sock.send(buf, 0, buf.length, 50547, '127.0.0.1', err => {
-                sock.close();
-                if (err) {
-                    console.log('Cannot send data to imitate connection', err);
-                }
-            });
-        }
-
-        sock.on('error', err => {
-            sock.close();
-            console.log('Cannot send data to imitate connection', err);
-        });
-        sock.close();
+        sendDataToImitateConnection();
         // check the values
         let state = await new Promise(resolve =>
             states.getState('witmotion.0.angle.x', (_err, state) => resolve(state)),
