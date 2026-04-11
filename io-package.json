@@ -70,6 +70,21 @@
     "tier": 2,
     "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.witmotion/master/admin/witmotion.png",
     "type": "utility",
+      "deviceWidgets": {
+          "name": "DevicesWidgetWitMotionSet",
+          "components": [
+              {
+                  "name": "WitMotionComponent",
+                  "label": "Wit Motion",
+                  "description": {
+                      "de": "Zeigt die Neigungsgrad und Compass-Richtung an",
+                      "en": "Shows the tilt degree and compass direction",
+                      "ru": "Показывает степень наклона и направление компаса"
+                  },
+                  "icon": "witmotion.png"
+              }
+          ]
+      },
     "dependencies": [
       {
         "js-controller": ">=6.0.11"
