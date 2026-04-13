@@ -10,6 +10,9 @@
   "Test": "Prüfen",
   "Time window for calculating the sliding average of sensor values": "Zeitfenster zur Berechnung des gleitenden Mittelwerts der Sensorwerte",
   "Use 0-360° for angle X": "0-360° für den Winkel X verwenden",
-  "Use 0-360° for angle Y": "Sie 0-360° für den Winkel Y verwenden",
-  "Use 0-360° for angle Z": "Sie 0-360° für den Winkel Z verwenden"
+  "Use 0-360° for angle Y": "0-360° für den Winkel Y verwenden",
+  "Use 0-360° for angle Z": "0-360° für den Winkel Z verwenden",
+  "Offset X": "Offset X",
+  "Offset Y": "Offset Y",
+  "Offset Z": "Offset Z"
 }

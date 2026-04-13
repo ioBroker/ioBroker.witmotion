@@ -11,5 +11,8 @@
   "Time window for calculating the sliding average of sensor values": "Fenêtre temporelle pour le calcul de la moyenne glissante des valeurs des capteurs",
   "Use 0-360° for angle X": "Utilisez 0 à 360° pour l'angle X",
   "Use 0-360° for angle Y": "Utilisez 0 à 360° pour l'angle Y.",
-  "Use 0-360° for angle Z": "Utilisez 0 à 360° pour l'angle Z"
+  "Use 0-360° for angle Z": "Utilisez 0 à 360° pour l'angle Z",
+  "Offset X": "Décalage X",
+  "Offset Y": "Décalage Y",
+  "Offset Z": "Décalage Z"
 }

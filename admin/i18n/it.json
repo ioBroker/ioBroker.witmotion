@@ -11,5 +11,8 @@
   "Time window for calculating the sliding average of sensor values": "Finestra temporale per il calcolo della media mobile dei valori dei sensori",
   "Use 0-360° for angle X": "Utilizzare 0-360° per l'angolo X",
   "Use 0-360° for angle Y": "Utilizzare 0-360° per l'angolo Y",
-  "Use 0-360° for angle Z": "Utilizzare 0-360° per l'angolo Z"
+  "Use 0-360° for angle Z": "Utilizzare 0-360° per l'angolo Z",
+  "Offset X": "Offset X",
+  "Offset Y": "Offset Y",
+  "Offset Z": "Offset Z"
 }

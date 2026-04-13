@@ -11,5 +11,8 @@
   "Time window for calculating the sliding average of sensor values": "Часове вікно для обчислення ковзного середнього значень датчиків",
   "Use 0-360° for angle X": "Використовуйте 0-360° для кута X",
   "Use 0-360° for angle Y": "Використовуйте 0-360° для кута Y",
-  "Use 0-360° for angle Z": "Використовуйте 0-360° для кута Z"
+  "Use 0-360° for angle Z": "Використовуйте 0-360° для кута Z",
+  "Offset X": "Зміщення X",
+  "Offset Y": "Зміщення Y",
+  "Offset Z": "Зміщення Z"
 }

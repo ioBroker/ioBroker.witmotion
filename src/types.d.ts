@@ -16,6 +16,9 @@ export interface WitMotionAdapterConfig {
     magnetometer360x: boolean;
     magnetometer360y: boolean;
     magnetometer360z: boolean;
+    magnetometerOffsetX: number | string;
+    magnetometerOffsetY: number | string;
+    magnetometerOffsetZ: number | string;
 
     test?: boolean;
 }

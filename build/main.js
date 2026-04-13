@@ -228,9 +228,9 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
                     await this.setStateIfChangedAsync('gyroscope.z', decodedData.gyroscope.z, this.config.gyroscopeUpdate, this.config.gyroscopeAverageInterval);
                 }
                 if (this.config.magnetometer) {
-                    await this.setStateIfChangedAsync('angle.x', decodedData.angle.x, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360x);
-                    await this.setStateIfChangedAsync('angle.y', decodedData.angle.y, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360y);
-                    await this.setStateIfChangedAsync('angle.z', decodedData.angle.z, this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360z);
+                    await this.setStateIfChangedAsync('angle.x', decodedData.angle.x + (this.config.magnetometerOffsetX || 0), this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360x);
+                    await this.setStateIfChangedAsync('angle.y', decodedData.angle.y + (this.config.magnetometerOffsetY || 0), this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360y);
+                    await this.setStateIfChangedAsync('angle.z', decodedData.angle.z + (this.config.magnetometerOffsetZ || 0), this.config.magnetometerUpdate, this.config.magnetometerAverageInterval, this.config.magnetometer360z);
                 }
                 this.tempBytes = [];
             }

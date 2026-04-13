@@ -11,5 +11,8 @@
     "Time window for calculating the sliding average of sensor values": "Time window for calculating the sliding average of sensor values",
     "Use 0-360° for angle X": "Use 0-360° for angle X",
     "Use 0-360° for angle Y": "Use 0-360° for angle Y",
-    "Use 0-360° for angle Z": "Use 0-360° for angle Z"
+    "Use 0-360° for angle Z": "Use 0-360° for angle Z",
+    "Offset X": "Offset X",
+    "Offset Y": "Offset Y",
+    "Offset Z": "Offset Z"
 }

@@ -11,5 +11,8 @@
   "Time window for calculating the sliding average of sensor values": "计算传感器值滑动平均值的时间窗口",
   "Use 0-360° for angle X": "角度 X 使用 0-360° 表示。",
   "Use 0-360° for angle Y": "角度 Y 的取值范围为 0-360°。",
-  "Use 0-360° for angle Z": "角度 Z 的取值范围为 0-360°。"
+  "Use 0-360° for angle Z": "角度 Z 的取值范围为 0-360°。",
+  "Offset X": "偏移量 X",
+  "Offset Y": "偏移量 Y",
+  "Offset Z": "偏移量 Z"
 }

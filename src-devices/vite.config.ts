@@ -46,7 +46,6 @@ const config = {
                 warn(warning);
             },
         },
-        minify: false,
     },
 };
 

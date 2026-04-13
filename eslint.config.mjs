@@ -22,6 +22,17 @@ export default [
         },
     },
     {
-        ignores: ['build/**/*', 'admin/**/*', 'test/**/*', 'tmp/**/*', '**/*.mjs'],
+        ignores: [
+            'build/**/*',
+            'admin/**/*',
+            'www/**/*',
+            'test/**/*',
+            'tmp/**/*',
+            '**/*.mjs',
+            'src-devices/node_modules/**/*',
+            'src-devices/build/**/*',
+            'src-devices/.__mf__temp/**/*',
+            'node_modules/**/*',
+        ],
     },
 ];

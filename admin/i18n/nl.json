@@ -11,5 +11,8 @@
   "Time window for calculating the sliding average of sensor values": "Tijdsvenster voor het berekenen van het glijdend gemiddelde van sensorwaarden",
   "Use 0-360° for angle X": "Gebruik 0-360° voor hoek X.",
   "Use 0-360° for angle Y": "Gebruik 0-360° voor de Y-hoek.",
-  "Use 0-360° for angle Z": "Gebruik 0-360° voor hoek Z."
+  "Use 0-360° for angle Z": "Gebruik 0-360° voor hoek Z.",
+  "Offset X": "Offset X",
+  "Offset Y": "Offset Y",
+  "Offset Z": "Offset Z"
 }

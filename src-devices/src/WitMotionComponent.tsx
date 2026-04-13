@@ -2,17 +2,22 @@
 import WidgetGeneric, {
     React,
     MuiMaterial,
+    MuiIcons,
     getTileStyles,
     isNeumorphicTheme,
     type WidgetGenericProps,
     type WidgetGenericState,
     type CustomWidgetPlugin,
 } from '@iobroker/dm-widgets';
-import type { BoxProps, TypographyProps } from '@mui/material';
+import type { BoxProps, TypographyProps, DialogProps, IconButtonProps } from '@mui/material';
 import type { ConfigItemPanel, ConfigItemTabs } from '@iobroker/json-config';
 
 const Box: React.ComponentType<BoxProps> = MuiMaterial?.Box;
 const Typography: React.ComponentType<TypographyProps> = MuiMaterial?.Typography;
+const Dialog: React.ComponentType<DialogProps> = MuiMaterial?.Dialog;
+const DialogContent: React.ComponentType<any> = MuiMaterial?.DialogContent;
+const IconButton: React.ComponentType<IconButtonProps> = MuiMaterial?.IconButton;
+const CloseIcon: React.ComponentType<any> = MuiIcons?.Close;
 
 // PNG assets — imported as URLs by Vite
 import boatTopPng from './assets/boat_top.png';
@@ -26,6 +31,94 @@ const OBJECT_IMAGES: Record<string, Record<string, string>> = {
     boat: { top: boatTopPng, side: boatSidePng, back: boatBackPng },
     car: { top: carTopPng, side: carSidePng, back: carBackPng },
 };
+
+/** Format angle value respecting isFloatComma */
+function formatAngle(val: number, decimals: number, isFloatComma?: boolean): string {
+    const str = val.toFixed(decimals);
+    return isFloatComma ? str.replace('.', ',') : str;
+}
+
+let waterLevelIdCounter = 0;
+
+/** Animated water level SVG overlay */
+function WaterLevel({ size, view }: { size: number; view: 'side' | 'back' }): React.JSX.Element {
+    const gradId = React.useMemo(() => `waterGrad_${++waterLevelIdCounter}`, []);
+    const w = size;
+    const h = size * 0.35;
+    // Side view: water higher up to overlap hull; back view: just slightly higher
+    const y = view === 'side' ? size * 0.5 : size * 0.58;
+    return (
+        <svg
+            style={{
+                position: 'absolute',
+                left: 0,
+                top: y,
+                width: w,
+                height: h,
+                pointerEvents: 'none',
+            }}
+            viewBox={`0 0 ${w} ${h}`}
+        >
+            <defs>
+                <linearGradient
+                    id={gradId}
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                >
+                    <stop
+                        offset="0%"
+                        stopColor="#1976d2"
+                        stopOpacity="0.15"
+                    />
+                    <stop
+                        offset="100%"
+                        stopColor="#1976d2"
+                        stopOpacity="0.35"
+                    />
+                </linearGradient>
+            </defs>
+            {/* Animated wave */}
+            <path
+                fill={`url(#${gradId})`}
+                d={`M0,${h * 0.3} Q${w * 0.15},${h * 0.05} ${w * 0.25},${h * 0.3} T${w * 0.5},${h * 0.3} T${w * 0.75},${h * 0.3} T${w},${h * 0.3} L${w},${h} L0,${h} Z`}
+            >
+                <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values={`0,0; ${w * 0.05},0; 0,0`}
+                    dur="3s"
+                    repeatCount="indefinite"
+                />
+            </path>
+            {/* Second wave layer offset */}
+            <path
+                fill={`url(#${gradId})`}
+                opacity="0.5"
+                d={`M0,${h * 0.45} Q${w * 0.2},${h * 0.2} ${w * 0.3},${h * 0.45} T${w * 0.6},${h * 0.45} T${w * 0.9},${h * 0.45} T${w * 1.2},${h * 0.45} L${w},${h} L0,${h} Z`}
+            >
+                <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    values={`0,0; -${w * 0.05},0; 0,0`}
+                    dur="2.5s"
+                    repeatCount="indefinite"
+                />
+            </path>
+            {/* Water line */}
+            <line
+                x1="0"
+                y1={h * 0.3}
+                x2={w}
+                y2={h * 0.3}
+                stroke="#1976d2"
+                strokeWidth="1"
+                opacity="0.3"
+            />
+        </svg>
+    );
+}
 
 type AxisType = 'x' | 'y' | 'z';
 type IconType = 'boat' | 'car' | 'custom';
@@ -60,6 +153,7 @@ interface WidgetWitmotionSettings extends CustomWidgetPlugin {
 interface WidgetWitmotionState extends WidgetGenericState {
     angle1: number | null;
     angle2: number | null;
+    dialogOpen: boolean;
 }
 
 // --- SVG icon paths per object type and view ---
@@ -123,6 +217,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
             ...this.state,
             angle1: null,
             angle2: null,
+            dialogOpen: false,
         };
     }
 
@@ -374,7 +469,8 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         // Use PNG images for boat and car
         const images = OBJECT_IMAGES[iconType];
         if (images) {
-            return (
+            const showWater = iconType === 'boat' && (view === 'side' || view === 'back');
+            const img = (
                 <img
                     src={images[view] || images.side}
                     alt=""
@@ -384,9 +480,31 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         transform: `rotate(${angle}deg)`,
                         transition: 'transform 0.3s ease',
                         objectFit: 'contain',
+                        display: 'block',
                     }}
                 />
             );
+            if (showWater) {
+                return (
+                    <div
+                        style={{
+                            position: 'relative',
+                            width: size,
+                            height: size,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        {img}
+                        <WaterLevel
+                            size={size}
+                            view={view}
+                        />
+                    </div>
+                );
+            }
+            return img;
         }
 
         // Fallback to SVG paths
@@ -541,7 +659,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                     </Box>
                 )}
                 <Typography sx={{ fontSize, fontWeight: 700, color: accent || 'text.primary' }}>
-                    {angle != null ? `${angle.toFixed(1)}°` : '—'}
+                    {angle != null ? `${formatAngle(angle, 1, this.props.stateContext.isFloatComma)}°` : '—'}
                 </Typography>
                 <Typography
                     variant="caption"
@@ -570,6 +688,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                 sx={theme => WidgetGeneric.getStyleCompact(theme)}
             >
                 <Box
+                    onClick={() => this.setState({ dialogOpen: true } as any)}
                     sx={theme => ({
                         display: 'flex',
                         flexDirection: 'column',
@@ -578,6 +697,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         width: '100%',
                         aspectRatio: '1',
                         overflow: 'hidden',
+                        cursor: 'pointer',
                         ...(getTileStyles(theme, isActive, accent) as any),
                         padding: isNeumorphicTheme(theme) ? 'max(12px, 8cqi)' : 'max(16px, 10cqi)',
                         gap: 0.5,
@@ -629,6 +749,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                 sx={theme => ({ ...WidgetGeneric.getStyleWide(theme), height: 80 })}
             >
                 <Box
+                    onClick={() => this.setState({ dialogOpen: true } as any)}
                     sx={theme => ({
                         display: 'flex',
                         alignItems: 'center',
@@ -636,6 +757,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         width: '100%',
                         height: '100%',
                         overflow: 'hidden',
+                        cursor: 'pointer',
                         ...(getTileStyles(theme, isActive, accent) as any),
                         px: 2,
                         gap: 3,
@@ -655,7 +777,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         <Typography
                             sx={{ fontSize: 28, fontWeight: 700, color: accent || 'text.primary', lineHeight: 1 }}
                         >
-                            {angle1 != null ? `${angle1.toFixed(1)}°` : '—'}
+                            {angle1 != null ? `${formatAngle(angle1, 1, this.props.stateContext.isFloatComma)}°` : '—'}
                         </Typography>
                         <Typography
                             variant="caption"
@@ -670,7 +792,9 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                             <Typography
                                 sx={{ fontSize: 28, fontWeight: 700, color: accent || 'text.primary', lineHeight: 1 }}
                             >
-                                {angle2 != null ? `${angle2.toFixed(1)}°` : '—'}
+                                {angle2 != null
+                                    ? `${formatAngle(angle2, 1, this.props.stateContext.isFloatComma)}°`
+                                    : '—'}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -707,6 +831,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                     sx={theme => WidgetGeneric.getStyleWide(theme)}
                 >
                     <Box
+                        onClick={() => this.setState({ dialogOpen: true } as any)}
                         sx={theme => ({
                             display: 'flex',
                             alignItems: 'center',
@@ -714,6 +839,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                             width: '100%',
                             aspectRatio: '2',
                             overflow: 'hidden',
+                            cursor: 'pointer',
                             ...(getTileStyles(theme, isActive, accent) as any),
                             padding: isNeumorphicTheme(theme) ? '12px' : '16px',
                             gap: 2,
@@ -725,22 +851,45 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         ) : visualAngle1 != null ? (
                             this.renderIcon(false, visualAngle1, 90, view1, accent)
                         ) : (
-                            <Box sx={{ width: 90, height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Box
+                                sx={{
+                                    width: 90,
+                                    height: 90,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
                                 <Typography sx={{ color: 'text.disabled', fontSize: 40 }}>—</Typography>
                             </Box>
                         )}
                         {/* Value + axis + name on the right */}
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                                <Typography sx={{ fontSize: 36, fontWeight: 700, color: accent || 'text.primary', lineHeight: 1 }}>
-                                    {angle1 != null ? `${angle1.toFixed(1)}°` : '—'}
+                                <Typography
+                                    sx={{
+                                        fontSize: 36,
+                                        fontWeight: 700,
+                                        color: accent || 'text.primary',
+                                        lineHeight: 1,
+                                    }}
+                                >
+                                    {angle1 != null
+                                        ? `${formatAngle(angle1, 1, this.props.stateContext.isFloatComma)}°`
+                                        : '—'}
                                 </Typography>
-                                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 14 }}>
+                                <Typography
+                                    variant="caption"
+                                    sx={{ color: 'text.secondary', fontWeight: 500, fontSize: 14 }}
+                                >
                                     {axis1.toUpperCase()}
                                 </Typography>
                             </Box>
                             {this.props.settings.name ? (
-                                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: 600, color: 'text.secondary' }}
+                                >
                                     {this.props.settings.name}
                                 </Typography>
                             ) : null}
@@ -759,6 +908,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                 sx={theme => WidgetGeneric.getStyleWide(theme)}
             >
                 <Box
+                    onClick={() => this.setState({ dialogOpen: true } as any)}
                     sx={theme => ({
                         display: 'flex',
                         alignItems: 'center',
@@ -766,21 +916,14 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         width: '100%',
                         aspectRatio: '2',
                         overflow: 'hidden',
+                        cursor: 'pointer',
                         position: 'relative',
                         ...(getTileStyles(theme, isActive, accent) as any),
                         padding: isNeumorphicTheme(theme) ? '12px' : '16px',
                         gap: 1,
                     })}
                 >
-                    {this.renderAnglePanel(
-                        angle1,
-                        axis1,
-                        view1,
-                        70,
-                        20,
-                        mult1,
-                        false,
-                    )}
+                    {this.renderAnglePanel(angle1, axis1, view1, 70, 20, mult1, false)}
                     {this.renderAnglePanel(
                         angle2,
                         axis2,
@@ -806,8 +949,317 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         );
     }
 
+    /** Render fullscreen dialog with large icons and values */
+    private renderDialog(): React.JSX.Element | null {
+        if (!this.state.dialogOpen) {
+            return null;
+        }
+        const axis1 = this.props.settings.axis1 || 'x';
+        const axis2 = this.props.settings.axis2;
+        const view1 = this.props.settings.view1 || 'side';
+        const mult1 = this.props.settings.multiplier1 || 1;
+        const { angle1, angle2 } = this.state;
+        const showTwo = !!axis2;
+
+        return (
+            <Dialog
+                open
+                onClose={() => this.setState({ dialogOpen: false } as any)}
+                maxWidth={false}
+                fullWidth
+                slotProps={{
+                    paper: {
+                        sx: {
+                            width: '95vw',
+                            height: '90vh',
+                            maxWidth: '95vw',
+                            maxHeight: '90vh',
+                            m: 1,
+                        },
+                    },
+                }}
+            >
+                <IconButton
+                    onClick={() => this.setState({ dialogOpen: false } as any)}
+                    sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}
+                >
+                    <CloseIcon />
+                </IconButton>
+                <DialogContent
+                    sx={{
+                        display: 'flex',
+                        flexDirection: showTwo ? 'row' : 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 4,
+                        p: 4,
+                        overflow: 'hidden',
+                    }}
+                >
+                    {showTwo ? (
+                        <>
+                            {this.renderDialogPanel(angle1, axis1, view1, mult1, false, true)}
+                            {this.renderDialogPanel(
+                                angle2,
+                                axis2,
+                                this.props.settings.view2 || 'back',
+                                this.props.settings.multiplier2 || 1,
+                                true,
+                                true,
+                            )}
+                        </>
+                    ) : (
+                        this.renderDialogPanel(angle1, axis1, view1, mult1, false, false)
+                    )}
+                    {this.props.settings.name ? (
+                        <Typography
+                            sx={{
+                                position: 'absolute',
+                                bottom: 16,
+                                left: 0,
+                                right: 0,
+                                textAlign: 'center',
+                                fontSize: 20,
+                                fontWeight: 600,
+                                color: 'text.secondary',
+                            }}
+                        >
+                            {this.props.settings.name}
+                        </Typography>
+                    ) : null}
+                </DialogContent>
+            </Dialog>
+        );
+    }
+
+    /** Single axis panel for the dialog — large icon + value */
+    private renderDialogPanel(
+        angle: number | null,
+        axis: string,
+        view: ViewType,
+        multiplier: number,
+        isSecond: boolean,
+        showTwo: boolean,
+    ): React.JSX.Element {
+        const accent = this.getAccentColor();
+        const visualAngle = angle != null ? angle * multiplier : null;
+        const valueFontCss = showTwo ? 'min(8vw, 12vh)' : 'min(14vw, 16vh)';
+        const axisLabelCss = showTwo ? 'min(3vw, 5vh)' : 'min(6vw, 7vh)';
+
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flex: 1,
+                    minWidth: 0,
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'hidden',
+                }}
+            >
+                <Box
+                    sx={{
+                        flex: 1,
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minHeight: 0,
+                    }}
+                >
+                    {view === 'top' ? (
+                        this.renderDialogIcon(isSecond, visualAngle, view, accent)
+                    ) : visualAngle != null ? (
+                        this.renderDialogIcon(isSecond, visualAngle, view, accent)
+                    ) : (
+                        <Typography sx={{ color: 'text.disabled', fontSize: valueFontCss }}>—</Typography>
+                    )}
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, py: 2, flexShrink: 0 }}>
+                    <Typography
+                        sx={{ fontSize: valueFontCss, fontWeight: 700, color: accent || 'text.primary', lineHeight: 1 }}
+                    >
+                        {angle != null ? `${formatAngle(angle, 1, this.props.stateContext.isFloatComma)}°` : '—'}
+                    </Typography>
+                    <Typography sx={{ fontSize: axisLabelCss, color: 'text.secondary', fontWeight: 500 }}>
+                        {axis.toUpperCase()}
+                    </Typography>
+                </Box>
+            </Box>
+        );
+    }
+
+    /** Render an icon for the dialog that fills its container */
+    private renderDialogIcon(
+        isSecond: boolean,
+        angle: number | null,
+        view: ViewType,
+        accent?: string,
+    ): React.JSX.Element {
+        const iconType = this.props.settings.iconType || 'boat';
+        const rotateAngle = angle ?? 0;
+
+        if (view === 'top') {
+            // Compass needs a pixel size — compute from window
+            const compassSize = Math.min(window.innerWidth * 0.7, window.innerHeight * 0.6);
+            return this.renderCompass(isSecond, angle, compassSize, accent);
+        }
+
+        // Custom icon
+        if (iconType === 'custom') {
+            const customSrc = isSecond ? this.props.settings.icon2 : this.props.settings.icon1;
+            if (customSrc) {
+                return (
+                    <img
+                        src={customSrc}
+                        alt=""
+                        style={{
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                            objectFit: 'contain',
+                            transform: `rotate(${rotateAngle}deg)`,
+                            transition: 'transform 0.3s ease',
+                        }}
+                    />
+                );
+            }
+        }
+
+        // PNG images for boat/car
+        const images = OBJECT_IMAGES[iconType];
+        if (images) {
+            const showWater = iconType === 'boat' && (view === 'side' || view === 'back');
+            const img = (
+                <img
+                    src={images[view] || images.side}
+                    alt=""
+                    style={{
+                        maxWidth: '100%',
+                        maxHeight: showWater ? '75%' : '100%',
+                        objectFit: 'contain',
+                        transform: `rotate(${rotateAngle}deg)`,
+                        transition: 'transform 0.3s ease',
+                        display: 'block',
+                    }}
+                />
+            );
+            if (showWater) {
+                // Water at the bottom of the container
+                const waterH = view === 'side' ? '40%' : '35%';
+                const waterTop = view === 'side' ? '55%' : '62%';
+                return (
+                    <div
+                        style={{
+                            position: 'relative',
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        {img}
+                        <svg
+                            style={{
+                                position: 'absolute',
+                                left: 0,
+                                top: waterTop,
+                                width: '100%',
+                                height: waterH,
+                                pointerEvents: 'none',
+                            }}
+                            viewBox="0 0 400 120"
+                            preserveAspectRatio="none"
+                        >
+                            <defs>
+                                <linearGradient
+                                    id="waterGradDialog"
+                                    x1="0"
+                                    y1="0"
+                                    x2="0"
+                                    y2="1"
+                                >
+                                    <stop
+                                        offset="0%"
+                                        stopColor="#1976d2"
+                                        stopOpacity="0.15"
+                                    />
+                                    <stop
+                                        offset="100%"
+                                        stopColor="#1976d2"
+                                        stopOpacity="0.35"
+                                    />
+                                </linearGradient>
+                            </defs>
+                            <path
+                                fill="url(#waterGradDialog)"
+                                d="M0,30 Q60,5 100,30 T200,30 T300,30 T400,30 L400,120 L0,120 Z"
+                            >
+                                <animateTransform
+                                    attributeName="transform"
+                                    type="translate"
+                                    values="0,0; 20,0; 0,0"
+                                    dur="3s"
+                                    repeatCount="indefinite"
+                                />
+                            </path>
+                            <path
+                                fill="url(#waterGradDialog)"
+                                opacity="0.5"
+                                d="M0,45 Q80,20 120,45 T240,45 T360,45 T480,45 L400,120 L0,120 Z"
+                            >
+                                <animateTransform
+                                    attributeName="transform"
+                                    type="translate"
+                                    values="0,0; -20,0; 0,0"
+                                    dur="2.5s"
+                                    repeatCount="indefinite"
+                                />
+                            </path>
+                            <line
+                                x1="0"
+                                y1="30"
+                                x2="400"
+                                y2="30"
+                                stroke="#1976d2"
+                                strokeWidth="1"
+                                opacity="0.3"
+                            />
+                        </svg>
+                    </div>
+                );
+            }
+            return img;
+        }
+
+        // Fallback SVG
+        const paths = ICON_PATHS[iconType] || ICON_PATHS.car;
+        const fallbackSize = Math.min(window.innerWidth * 0.5, window.innerHeight * 0.5);
+        return (
+            <RotatedIcon
+                path={paths[view]}
+                angle={rotateAngle}
+                size={fallbackSize}
+                color={accent}
+            />
+        );
+    }
+
     render(): React.JSX.Element {
-        return super.render();
+        const widget = super.render();
+        const dialog = this.renderDialog();
+        if (dialog) {
+            return (
+                <>
+                    {widget}
+                    {dialog}
+                </>
+            );
+        }
+        return widget;
     }
 }
 

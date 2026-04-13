@@ -218,6 +218,37 @@
             "md": 4,
             "sm": 12,
             "hidden": "!data.magnetometer"
+        },
+        "magnetometerOffsetX": {
+            "newLine": true,
+            "type": "number",
+            "label": "Offset X",
+            "help": "°",
+            "default": 0,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.magnetometer"
+        },
+        "magnetometerOffsetY": {
+            "type": "number",
+            "label": "Offset Y",
+            "help": "°",
+            "default": 0,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.magnetometer"
+        },
+        "magnetometerOffsetZ": {
+            "type": "number",
+            "label": "Offset Z",
+            "help": "°",
+            "default": 0,
+            "lg": 2,
+            "md": 4,
+            "sm": 12,
+            "hidden": "!data.magnetometer"
         }
     }
 }

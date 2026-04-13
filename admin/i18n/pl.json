@@ -11,5 +11,8 @@
   "Time window for calculating the sliding average of sensor values": "Okno czasowe do obliczenia średniej ruchomej wartości czujników",
   "Use 0-360° for angle X": "Użyj 0-360° dla kąta X",
   "Use 0-360° for angle Y": "Użyj 0-360° dla kąta Y",
-  "Use 0-360° for angle Z": "Użyj 0-360° dla kąta Z"
+  "Use 0-360° for angle Z": "Użyj 0-360° dla kąta Z",
+  "Offset X": "Przesunięcie X",
+  "Offset Y": "Przesunięcie Y",
+  "Offset Z": "Przesunięcie Z"
 }

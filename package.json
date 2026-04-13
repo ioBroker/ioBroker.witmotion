@@ -37,6 +37,7 @@
         "admin/",
         "build/",
         "io-package.json",
+        "www/",
         "LICENSE"
     ],
     "scripts": {

@@ -312,21 +312,21 @@ export class WitMotionAdapter extends Adapter {
                 if (this.config.magnetometer) {
                     await this.setStateIfChangedAsync(
                         'angle.x',
-                        decodedData.angle.x,
+                        decodedData.angle.x + ((this.config.magnetometerOffsetX as number) || 0),
                         this.config.magnetometerUpdate as number,
                         this.config.magnetometerAverageInterval as number,
                         this.config.magnetometer360x,
                     );
                     await this.setStateIfChangedAsync(
                         'angle.y',
-                        decodedData.angle.y,
+                        decodedData.angle.y + ((this.config.magnetometerOffsetY as number) || 0),
                         this.config.magnetometerUpdate as number,
                         this.config.magnetometerAverageInterval as number,
                         this.config.magnetometer360y,
                     );
                     await this.setStateIfChangedAsync(
                         'angle.z',
-                        decodedData.angle.z,
+                        decodedData.angle.z + ((this.config.magnetometerOffsetZ as number) || 0),
                         this.config.magnetometerUpdate as number,
                         this.config.magnetometerAverageInterval as number,
                         this.config.magnetometer360z,

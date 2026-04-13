@@ -4,7 +4,6 @@
  */
 'use strict';
 
-const adapterName = require('./package.json').name.replace('iobroker.', '');
 const { deleteFoldersRecursive, npmInstall, buildReact, copyFiles } = require('@iobroker/build-tools');
 
 const SRC = 'src-devices/';
@@ -17,10 +16,10 @@ function clean() {
 }
 
 function copyAllFiles() {
-    copyFiles([`${SRC}build/customDevices.js`], `www/${adapterName}`);
-    copyFiles([`${SRC}build/assets/*.*`], `www/${adapterName}/assets`);
-    copyFiles([`${SRC}build/img/*`], `www/${adapterName}/img`);
-    copyFiles([`${SRC}img/witmotion.png`], `www/${adapterName}`);
+    copyFiles([`${SRC}build/customDevices.js`], `www`);
+    copyFiles([`${SRC}build/assets/*.*`], `www/assets`);
+    copyFiles([`${SRC}build/img/*`], `www/img`);
+    copyFiles([`${SRC}img/witmotion.png`], `www`);
     copyFiles([`${SRC}build/customDevices.js`], `admin/dm-widgets`);
     copyFiles([`${SRC}build/assets/*.*`], `admin/dm-widgets/assets`);
     copyFiles([`${SRC}build/img/*`], `admin/dm-widgets/img`);
