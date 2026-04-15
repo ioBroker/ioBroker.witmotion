@@ -1,7 +1,7 @@
 {
     "name": "iobroker-devices-component-witmotion",
     "private": true,
-    "version": "0.0.4",
+    "version": "0.1.0",
     "scripts": {
         "start": "vite",
         "build": "vite build"

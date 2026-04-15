@@ -1,134 +1,154 @@
 {
-    "common": {
-        "name": "witmotion",
-        "version": "0.0.4",
-        "news": {
-            "0.0.4": {
-                "en": "Tests fixed",
-                "de": "Prüfverfahren",
-                "ru": "Испытания фиксированные",
-                "pt": "Ensaios fixados",
-                "nl": "Tests vastgesteld",
-                "fr": "Essais fixés",
-                "it": "Test fissi",
-                "es": "Pruebas fijas",
-                "pl": "Badania stałe",
-                "uk": "Тести фіксовані",
-                "zh-cn": "测试已固定"
-            }
-        },
-        "titleLang": {
-            "en": "WitMotion",
-            "de": "WitMotion",
-            "ru": "WitMotion",
-            "pt": "WitMotion",
-            "nl": "WitMotion",
-            "fr": "WitMotion",
-            "it": "WitMotion",
-            "es": "WitMotion",
-            "pl": "WitMotion",
-            "zh-cn": "WitMotion",
-            "uk": "WitMotion"
-        },
-        "desc": {
-            "en": "Read data from WitMotion sensor via USB",
-            "de": "Lesen Sie Daten vom WitMotion-Sensor über USB",
-            "ru": "Чтение данных с датчика WitMotion через USB",
-            "pt": "Leia dados do sensor WitMotion via USB",
-            "nl": "Lees gegevens van WitMotion-sensor via USB",
-            "fr": "Lire les données du capteur WitMotion via USB",
-            "it": "Leggi i dati dal sensore WitMotion tramite USB",
-            "es": "Leer datos del sensor WitMotion a través de USB",
-            "pl": "Odczytaj dane z czujnika WitMotion przez USB",
-            "zh-cn": "通过USB读取WitMotion传感器的数据",
-            "uk": "Читання даних з датчика WitMotion через USB"
-        },
-        "authors": ["bluefox <dogafox@gmail.com>"],
-        "licenseInformation": {
-            "license": "MIT",
-            "type": "free"
-        },
-        "platform": "Javascript/Node.js",
-        "mode": "daemon",
-        "compact": true,
-        "enabled": true,
-        "readme": "https://github.com/ioBroker/ioBroker.witmotion/blob/master/README.md",
-        "loglevel": "info",
-        "messagebox": true,
-        "icon": "witmotion.png",
-        "adminUI": {
-            "config": "json"
-        },
-        "keywords": ["WitMotion", "Gyroscope"],
-        "connectionType": "local",
-        "dataSource": "push",
-        "tier": 2,
-        "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.witmotion/master/admin/witmotion.png",
-        "type": "utility",
-        "deviceWidgets": {
-            "components": [
-                {
-                    "name": "WitMotionComponent",
-                    "label": "Wit Motion",
-                    "description": {
-                        "de": "Zeigt die Neigungsgrad und Compass-Richtung an",
-                        "en": "Shows the tilt degree and compass direction",
-                        "ru": "Показывает степень наклона и направление компаса"
-                    },
-                    "icon": "witmotion.png"
-                }
-            ]
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=6.0.11"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=7.6.17"
-            }
-        ],
-        "restartAdapters": ["devices"]
+  "common": {
+    "name": "witmotion",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "Added visualisation for \"devices\" adapter\nAdded offset configuration for magnetometer",
+        "de": "Visualisierung für \"Geräte\" Adapter hinzugefügt\nZusätzliche Offset-Konfiguration für Magnetometer",
+        "ru": "Добавлена визуализация для «устройств» адаптера\nДобавлена конфигурация смещения для магнитометра",
+        "pt": "Visualização adicional para o adaptador \"dispositivos\"\nAdicionada configuração offset para magnetômetro",
+        "nl": "Toegevoegde visualisatie voor \"apparaten\" adapter\nToegevoegde offsetconfiguratie voor magnetometer",
+        "fr": "Ajout d'une visualisation pour adaptateur \"dispositifs\"\nAjout de la configuration offset pour le magnétomètre",
+        "it": "Visualizzazione aggiuntiva per adattatore \"dispositivi\"\nConfigurazione offset aggiuntiva per magnetometro",
+        "es": "Visualización agregada para el adaptador \"dispositivos\"\nConfiguración offset adicional para magnetómetro",
+        "pl": "Dodano wizualizację adaptera \"urządzeń\"\nDodano konfigurację przesuwu magnetometru",
+        "uk": "Додано візуалізацію для адаптера \"devices\"\nДодано налаштування зсуву для магнітометра",
+        "zh-cn": "添加“ 设备” 适配器的可视化\n磁强计增加的偏移配置"
+      },
+      "0.0.4": {
+        "en": "Tests fixed",
+        "de": "Prüfverfahren",
+        "ru": "Испытания фиксированные",
+        "pt": "Ensaios fixados",
+        "nl": "Tests vastgesteld",
+        "fr": "Essais fixés",
+        "it": "Test fissi",
+        "es": "Pruebas fijas",
+        "pl": "Badania stałe",
+        "uk": "Тести фіксовані",
+        "zh-cn": "测试已固定"
+      }
     },
-    "native": {
-        "serialPort": "",
-        "baudRate": 115200,
-        "accelerometer": false,
-        "accelerometerUpdate": 1000,
-        "accelerometerAverageInterval": 5000,
-        "gyroscope": true,
-        "gyroscopeUpdate": 1000,
-        "gyroscopeAverageInterval": 5000,
-        "magnetometer": true,
-        "magnetometerUpdate": 1000,
-        "magnetometerAverageInterval": 5000,
-        "magnetometer360x": false,
-        "magnetometer360y": false,
-        "magnetometer360z": true
+    "titleLang": {
+      "en": "WitMotion",
+      "de": "WitMotion",
+      "ru": "WitMotion",
+      "pt": "WitMotion",
+      "nl": "WitMotion",
+      "fr": "WitMotion",
+      "it": "WitMotion",
+      "es": "WitMotion",
+      "pl": "WitMotion",
+      "zh-cn": "WitMotion",
+      "uk": "WitMotion"
     },
-    "objects": [],
-    "instanceObjects": [
+    "desc": {
+      "en": "Read data from WitMotion sensor via USB",
+      "de": "Lesen Sie Daten vom WitMotion-Sensor über USB",
+      "ru": "Чтение данных с датчика WitMotion через USB",
+      "pt": "Leia dados do sensor WitMotion via USB",
+      "nl": "Lees gegevens van WitMotion-sensor via USB",
+      "fr": "Lire les données du capteur WitMotion via USB",
+      "it": "Leggi i dati dal sensore WitMotion tramite USB",
+      "es": "Leer datos del sensor WitMotion a través de USB",
+      "pl": "Odczytaj dane z czujnika WitMotion przez USB",
+      "zh-cn": "通过USB读取WitMotion传感器的数据",
+      "uk": "Читання даних з датчика WitMotion через USB"
+    },
+    "authors": [
+      "bluefox <dogafox@gmail.com>"
+    ],
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "compact": true,
+    "enabled": true,
+    "readme": "https://github.com/ioBroker/ioBroker.witmotion/blob/master/README.md",
+    "loglevel": "info",
+    "messagebox": true,
+    "icon": "witmotion.png",
+    "adminUI": {
+      "config": "json"
+    },
+    "keywords": [
+      "WitMotion",
+      "Gyroscope"
+    ],
+    "connectionType": "local",
+    "dataSource": "push",
+    "tier": 2,
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.witmotion/master/admin/witmotion.png",
+    "type": "utility",
+    "deviceWidgets": {
+      "components": [
         {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "If connected to cloud",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
+          "name": "WitMotionComponent",
+          "label": "Wit Motion",
+          "description": {
+            "de": "Zeigt die Neigungsgrad und Compass-Richtung an",
+            "en": "Shows the tilt degree and compass direction",
+            "ru": "Показывает степень наклона и направление компаса"
+          },
+          "icon": "witmotion.png"
         }
+      ]
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.17"
+      }
+    ],
+    "restartAdapters": [
+      "devices"
     ]
+  },
+  "native": {
+    "serialPort": "",
+    "baudRate": 115200,
+    "accelerometer": false,
+    "accelerometerUpdate": 1000,
+    "accelerometerAverageInterval": 5000,
+    "gyroscope": true,
+    "gyroscopeUpdate": 1000,
+    "gyroscopeAverageInterval": 5000,
+    "magnetometer": true,
+    "magnetometerUpdate": 1000,
+    "magnetometerAverageInterval": 5000,
+    "magnetometer360x": false,
+    "magnetometer360y": false,
+    "magnetometer360z": true
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "If connected to cloud",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
