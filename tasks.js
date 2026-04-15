@@ -11,15 +11,10 @@ const src = `${__dirname}/${SRC}`;
 
 function clean() {
     deleteFoldersRecursive(`${src}build`);
-    deleteFoldersRecursive(`${__dirname}/www`);
     deleteFoldersRecursive(`${__dirname}/admin/dm-widgets`);
 }
 
 function copyAllFiles() {
-    copyFiles([`${SRC}build/customDevices.js`], `www`);
-    copyFiles([`${SRC}build/assets/*.*`], `www/assets`);
-    copyFiles([`${SRC}build/img/*`], `www/img`);
-    copyFiles([`${SRC}img/witmotion.png`], `www`);
     copyFiles([`${SRC}build/customDevices.js`], `admin/dm-widgets`);
     copyFiles([`${SRC}build/assets/*.*`], `admin/dm-widgets/assets`);
     copyFiles([`${SRC}build/img/*`], `admin/dm-widgets/img`);

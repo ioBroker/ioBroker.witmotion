@@ -680,7 +680,8 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         const isActive = this.isTileActive();
         const accent = this.getAccentColor();
         const axis1 = this.props.settings.axis1 || 'x';
-
+        const settingsButton = this.renderSettingsButton();
+        const indicators = this.renderIndicators(settingsButton);
         return (
             <Box
                 id={String(this.props.widget.id)}
@@ -703,6 +704,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         gap: 0.5,
                     })}
                 >
+                    {indicators}
                     {this.renderAnglePanel(
                         this.state.angle1,
                         axis1,
@@ -729,7 +731,6 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         </Typography>
                     ) : null}
                 </Box>
-                {this.renderSettingsButton()}
             </Box>
         );
     }
@@ -741,6 +742,8 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         const axis1 = this.props.settings.axis1 || 'x';
         const axis2 = this.props.settings.axis2;
         const { angle1, angle2 } = this.state;
+        const settingsButton = this.renderSettingsButton();
+        const indicators = this.renderIndicators(settingsButton);
 
         return (
             <Box
@@ -763,6 +766,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         gap: 3,
                     })}
                 >
+                    {indicators}
                     {/* Name on the left */}
                     {this.props.settings.name ? (
                         <Typography
@@ -805,7 +809,6 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         </Box>
                     ) : null}
                 </Box>
-                {this.renderSettingsButton()}
             </Box>
         );
     }
@@ -821,6 +824,8 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         const mult1 = this.props.settings.multiplier1 || 1;
         const { angle1, angle2 } = this.state;
         const visualAngle1 = angle1 != null ? angle1 * mult1 : null;
+        const settingsButton = this.renderSettingsButton();
+        const indicators = this.renderIndicators(settingsButton);
 
         // Single axis: horizontal layout — icon left, value+name right
         if (!showTwo) {
@@ -845,6 +850,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                             gap: 2,
                         })}
                     >
+                        {indicators}
                         {/* Icon / compass on the left */}
                         {view1 === 'top' ? (
                             this.renderCompass(false, visualAngle1, 90, accent)
@@ -895,12 +901,11 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                             ) : null}
                         </Box>
                     </Box>
-                    {this.renderSettingsButton()}
                 </Box>
             );
         }
 
-        // Two axes: side by side panels
+        // Two axes: side-by-side panels
         return (
             <Box
                 id={String(this.props.widget.id)}
@@ -923,6 +928,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         gap: 1,
                     })}
                 >
+                    {indicators}
                     {this.renderAnglePanel(angle1, axis1, view1, 70, 20, mult1, false)}
                     {this.renderAnglePanel(
                         angle2,
@@ -944,12 +950,11 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         </Box>
                     ) : null}
                 </Box>
-                {this.renderSettingsButton()}
             </Box>
         );
     }
 
-    /** Render fullscreen dialog with large icons and values */
+    /** Render a fullscreen dialog with large icons and values */
     private renderDialog(): React.JSX.Element | null {
         if (!this.state.dialogOpen) {
             return null;

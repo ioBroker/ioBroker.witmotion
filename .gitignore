@@ -8,7 +8,6 @@ BWT901BLE5/
 #ignore .commitinfo created by ioBroker release script
 .commitinfo
 /src-devices/.__mf__temp/
-www/
 admin/dm-widgets/
 src-devices/build
 /.claude/settings.local.json
