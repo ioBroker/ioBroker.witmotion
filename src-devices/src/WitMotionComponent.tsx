@@ -567,7 +567,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                 <Typography
                     sx={{
                         position: 'absolute',
-                        top: 0,
+                        top: '5%',
                         left: '50%',
                         transform: 'translateX(-50%)',
                         fontSize: labelSize,
@@ -580,7 +580,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                 <Typography
                     sx={{
                         position: 'absolute',
-                        bottom: 0,
+                        bottom: '5%',
                         left: '50%',
                         transform: 'translateX(-50%)',
                         fontSize: labelSize,
@@ -593,7 +593,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                 <Typography
                     sx={{
                         position: 'absolute',
-                        right: 0,
+                        right: '8%',
                         top: '50%',
                         transform: 'translateY(-50%)',
                         fontSize: labelSize,
@@ -606,7 +606,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                 <Typography
                     sx={{
                         position: 'absolute',
-                        left: 0,
+                        left: '8%',
                         top: '50%',
                         transform: 'translateY(-50%)',
                         fontSize: labelSize,
