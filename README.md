@@ -28,6 +28,9 @@ The following data are read and written to ioBroker:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+- (copilot) Adapter requires node.js >= 22 now
+
 ### 0.1.0 (2026-04-15)
 * (@GermanBluefox) Added visualisation for "devices" adapter
 * (@GermanBluefox) Added offset configuration for magnetometer
