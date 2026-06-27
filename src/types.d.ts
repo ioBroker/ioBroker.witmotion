@@ -1,5 +1,9 @@
 export interface WitMotionAdapterConfig {
+    /** How the serial device is selected: by port name or by stable USB device ID */
+    selectBy: 'port' | 'device';
     serialPort: string;
+    /** Stable USB identifier (`vendorId:productId:serialNumber`) used when selectBy === 'device' */
+    serialPortDeviceId: string;
     baudRate: number | string;
 
     accelerometer: boolean;

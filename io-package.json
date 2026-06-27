@@ -112,7 +112,9 @@
     ]
   },
   "native": {
+    "selectBy": "port",
     "serialPort": "",
+    "serialPortDeviceId": "",
     "baudRate": 115200,
     "accelerometer": false,
     "accelerometerUpdate": 1000,

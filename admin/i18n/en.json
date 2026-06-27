@@ -14,5 +14,9 @@
     "Use 0-360° for angle Z": "Use 0-360° for angle Z",
     "Offset X": "Offset X",
     "Offset Y": "Offset Y",
-    "Offset Z": "Offset Z"
+    "Offset Z": "Offset Z",
+    "Select device by": "Select device by",
+    "USB device ID": "USB device ID",
+    "USB device": "USB device",
+    "Identified by vendor and product ID, so the OS may reassign the port name": "Identified by vendor and product ID, so the OS may reassign the port name"
 }

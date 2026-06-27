@@ -8,7 +8,7 @@ ioBroker adapter for WitMotion WT901blecl 5.0 (9-axis IMU sensor). Reads acceler
 
 ## Commands
 
-- **Build:** `npm run build` (TypeScript via `tsc -p tsconfig.build.json`, output to `build/`)
+- **Build:** `npm run build` — two stages: (1) `tsc -p tsconfig.build.json` compiles the adapter to `build/`, then (2) `node tasks` builds the React device-management widget from `src-devices/` and copies the output to `admin/dm-widgets/`. The `tasks.js` step can run in phases: `--0-clean`, `--1-npm` (install `src-devices` deps), `--2-build` (Vite build), `--3-copy`.
 - **Lint:** `npm run lint`
 - **Test all:** `npm test` (runs integration tests)
 - **Integration tests:** `npm run test:integration` (mocha, requires js-controller instance)
@@ -17,11 +17,16 @@ ioBroker adapter for WitMotion WT901blecl 5.0 (9-axis IMU sensor). Reads acceler
 
 ## Architecture
 
-Single-file adapter in `src/main.ts`. The `WitMotionAdapter` class extends `@iobroker/adapter-core`'s `Adapter`.
+This repo holds **two independent codebases**:
+
+1. **The adapter** — single-file backend in `src/main.ts`. The `WitMotionAdapter` class extends `@iobroker/adapter-core`'s `Adapter`. This is the runtime that talks to the sensor and writes states.
+2. **The device-management widget** — a React/MUI front-end in `src-devices/` (its own `package.json`, `node_modules`, and Vite config). It is built via module federation (`@originjs/vite-plugin-federation`) into `admin/dm-widgets/customDevices.js` and provides the visualisation shown by ioBroker's "devices" (`@iobroker/dm-utils`/`dm-widgets`) adapter — e.g. car/boat orientation graphics from the `assets/`. Entry point `src-devices/src/index.tsx`, main component `WitMotionComponent.tsx`. Has its own i18n in `src-devices/src/i18n/`. Edit it only when changing the visualisation, not the sensor logic.
 
 ### Data Flow
 
-Serial port (or UDP in test mode) → byte stream → accumulate 20-byte packets (header `0x55 0x61` + 18 data bytes) → `processData()` decodes acceleration/gyroscope/angle → `setStateIfChangedAsync()` applies change detection, minimum update interval, sliding average calculation, and optional 0-360° magnetometer transformation → ioBroker states.
+Serial port (or UDP in test mode) → byte stream → accumulate 20-byte packets (header `0x55 0x61` + 18 data bytes) → `processData()` decodes acceleration/gyroscope/angle → for angle values, the configured `magnetometerOffset{X,Y,Z}` is added → `setStateIfChangedAsync()` applies change detection, minimum update interval, sliding average calculation, and optional 0-360° transformation (negative values + 360) → ioBroker states.
+
+Each axis is gated by a config flag (`accelerometer` / `gyroscope` / `magnetometer`); only enabled groups are written. `setStateIfChangedAsync()` skips unchanged values unless the last write is older than 60s (heartbeat), then further throttles by the per-group `*Update` min interval, and maintains a sliding window (`*AverageInterval`) for the `*Avg` states.
 
 ### Key Methods
 
@@ -38,6 +43,8 @@ Each enabled sensor creates a channel with X/Y/Z values and their averages:
 - `acceleration.{x,y,z}` / `acceleration.{x,y,z}Avg` (unit: g)
 - `gyroscope.{x,y,z}` / `gyroscope.{x,y,z}Avg` (unit: °/s)
 - `angle.{x,y,z}` / `angle.{x,y,z}Avg` (unit: °)
+
+Naming quirk: the **`angle`** channel is the **magnetometer** — its states are labeled "Magnetometer …" and it is gated by the `magnetometer` config flag (and `magnetometer360{x,y,z}` / `magnetometerOffset{X,Y,Z}`), not an `angle` flag.
 
 ### Config Interface
 

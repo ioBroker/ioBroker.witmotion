@@ -1,4 +1,5 @@
 import { type Socket, createSocket } from 'node:dgram';
+import { existsSync, readdirSync, realpathSync } from 'node:fs';
 import { SerialPort } from 'serialport';
 import { Adapter, type AdapterOptions } from '@iobroker/adapter-core'; // Get common adapter utils
 import type { WitMotionAdapterConfig } from './types';
@@ -9,6 +10,18 @@ interface Value {
     avg: { val: number; ts: number }[];
 }
 
+interface SerialPortInfo {
+    path: string;
+    manufacturer?: string;
+    serialNumber?: string;
+    pnpId?: string;
+    locationId?: string;
+    vendorId?: string;
+    productId?: string;
+    /** Stable physical-USB-port identifier from /dev/serial/by-path (Linux only) */
+    byPath?: string;
+}
+
 export class WitMotionAdapter extends Adapter {
     declare config: WitMotionAdapterConfig;
     private serialPort?: SerialPort | null;
@@ -17,6 +30,8 @@ export class WitMotionAdapter extends Adapter {
     private tempBytes: number[] = [];
     private isPortOpen = false;
     private udpServer?: Socket;
+    /** Path of the currently opened serial port (resolved from config; may differ from config.serialPort in USB device mode) */
+    private openedPath = '';
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
@@ -63,10 +78,62 @@ export class WitMotionAdapter extends Adapter {
 
                             break;
 
+                        case 'listDevices':
+                            if (obj.callback) {
+                                try {
+                                    // read all found serial ports and expose them by their stable USB ID.
+                                    // Keep USB devices: either VID/PID was parsed, or the pnpId is a USB path
+                                    // (this excludes Bluetooth/BTHENUM virtual COM ports).
+                                    const ports = await WitMotionAdapter.listSerialDevices();
+                                    const devices = ports
+                                        .filter(
+                                            port =>
+                                                (port.vendorId && port.productId) ||
+                                                port.pnpId?.toUpperCase().startsWith('USB'),
+                                        )
+                                        .map(port => ({
+                                            label: WitMotionAdapter.makeDeviceLabel(port),
+                                            value: WitMotionAdapter.makeDeviceId(port),
+                                        }));
+                                    this.sendTo(
+                                        obj.from,
+                                        obj.command,
+                                        devices.length ? devices : [{ label: 'No USB devices found', value: '' }],
+                                        obj.callback,
+                                    );
+                                } catch (e) {
+                                    this.log.error(`Cannot list USB devices: ${e}`);
+                                    this.sendTo(
+                                        obj.from,
+                                        obj.command,
+                                        [{ label: 'Not available', value: '' }],
+                                        obj.callback,
+                                    );
+                                }
+                            }
+
+                            break;
+
                         case 'test':
                             if (obj.callback) {
                                 try {
-                                    const result = await this.test(obj.message.serialPort, obj.message.baudRate);
+                                    // In USB device mode resolve the stable device ID to the current port path
+                                    let serialPort: string = obj.message.serialPort;
+                                    if (obj.message.selectBy === 'device' && obj.message.serialPortDeviceId) {
+                                        serialPort = await WitMotionAdapter.findPortByDeviceId(
+                                            obj.message.serialPortDeviceId,
+                                        );
+                                        if (!serialPort) {
+                                            this.sendTo(
+                                                obj.from,
+                                                obj.command,
+                                                { error: 'USB device not found' },
+                                                obj.callback,
+                                            );
+                                            break;
+                                        }
+                                    }
+                                    const result = await this.test(serialPort, obj.message.baudRate);
                                     this.sendTo(
                                         obj.from,
                                         obj.command,
@@ -95,7 +162,7 @@ export class WitMotionAdapter extends Adapter {
 
     private async test(serialPort: string, baudRate: string | number): Promise<boolean> {
         let portClosed = false;
-        if (this.config.serialPort === serialPort) {
+        if (this.openedPath && this.openedPath === serialPort) {
             portClosed = true;
             await this.closePort();
             if (this.reconnectTimer) {
@@ -215,18 +282,133 @@ export class WitMotionAdapter extends Adapter {
         });
     }
 
+    /**
+     * Map each real serial device path (e.g. /dev/ttyUSB0) to its stable physical-USB-port name
+     * from /dev/serial/by-path (Linux only). Unlike pnpId (derived from VID/PID, identical for
+     * identical chips), by-path encodes the actual USB topology and differs per socket.
+     * Returns an empty map on non-Linux systems or when the directory is unavailable.
+     */
+    static getByPathMap(): Record<string, string> {
+        const dir = '/dev/serial/by-path';
+        const map: Record<string, string> = {};
+        try {
+            if (!existsSync(dir)) {
+                return map;
+            }
+            for (const name of readdirSync(dir)) {
+                try {
+                    map[realpathSync(`${dir}/${name}`)] = name;
+                } catch {
+                    // ignore broken symlink
+                }
+            }
+        } catch {
+            // ignore (non-Linux or no permission)
+        }
+        return map;
+    }
+
+    /** List serial ports, enriched with a stable physical-USB-port id (by-path) where available */
+    static async listSerialDevices(): Promise<SerialPortInfo[]> {
+        const ports = await SerialPort.list();
+        const byPath = WitMotionAdapter.getByPathMap();
+        return ports.map(port => ({ ...port, byPath: byPath[port.path] }));
+    }
+
+    /**
+     * Build a stable, port-name-independent identifier for a USB serial device.
+     * Prefers the programmed serial number (unique per chip, survives re-plugging into any port).
+     * For identical chips without a unique serial number it falls back to the physical USB
+     * location (by-path on Linux, pnpId/locationId elsewhere) — this distinguishes them but binds
+     * to the USB socket, so it stays stable only while the chip remains in the same physical port.
+     */
+    static makeDeviceId(port: SerialPortInfo): string {
+        const base = `${port.vendorId || ''}:${port.productId || ''}`;
+        if (port.serialNumber) {
+            return `${base}:${port.serialNumber}`;
+        }
+        // No unique serial number: pick the most stable identifier that still differs between two
+        // identical chips. On Linux pnpId comes from /dev/serial/by-id and is the SAME for identical
+        // chips, so it must NOT be used there — prefer by-path; if even that is missing fall back to
+        // the (less stable) device path. On Windows pnpId encodes the physical port and is reliable.
+        const isPosix = port.path.startsWith('/dev/');
+        const location = port.byPath || port.locationId || (isPosix ? port.path : port.pnpId) || port.path;
+        return `${base}@${location}`;
+    }
+
+    /** Build a human-readable label for the USB device dropdown */
+    static makeDeviceLabel(port: SerialPortInfo): string {
+        const parts: string[] = [];
+        if (port.manufacturer) {
+            parts.push(port.manufacturer);
+        }
+        parts.push(`${port.vendorId}:${port.productId}`);
+        if (port.serialNumber) {
+            parts.push(`SN:${port.serialNumber}`);
+        }
+        if (port.path) {
+            parts.push(`(${port.path})`);
+        }
+        // Physical USB location — the only way to tell identical chips (no unique serial) apart
+        const location = port.byPath || port.locationId || port.pnpId;
+        if (location) {
+            parts.push(`@ ${location}`);
+        }
+        return parts.join(' ');
+    }
+
+    /** Resolve a stored stable USB device ID to its current port path (empty string if not found) */
+    static async findPortByDeviceId(deviceId: string): Promise<string> {
+        if (!deviceId) {
+            return '';
+        }
+        const ports = await WitMotionAdapter.listSerialDevices();
+        const match = ports.find(port => WitMotionAdapter.makeDeviceId(port) === deviceId);
+        return match?.path || '';
+    }
+
+    /** Resolve the serial port path to open, honoring the configured selection method */
+    private async resolveSerialPortPath(): Promise<string> {
+        if (this.config.selectBy === 'device') {
+            if (!this.config.serialPortDeviceId) {
+                return '';
+            }
+            const path = await WitMotionAdapter.findPortByDeviceId(this.config.serialPortDeviceId);
+            if (!path) {
+                this.log.warn(`No serial port found for USB device "${this.config.serialPortDeviceId}"`);
+                return '';
+            }
+            this.log.debug(`Resolved USB device "${this.config.serialPortDeviceId}" to port "${path}"`);
+            return path;
+        }
+        return this.config.serialPort;
+    }
+
+    /** True if the user configured a serial device (by port or by USB ID) */
+    private isPortConfigured(): boolean {
+        return this.config.selectBy === 'device' ? !!this.config.serialPortDeviceId : !!this.config.serialPort;
+    }
+
     private async openPort(): Promise<void> {
         await this.closePort();
 
+        const path = await this.resolveSerialPortPath();
+        if (!path) {
+            // Nothing to connect to (e.g. USB device currently not plugged in) -> keep retrying
+            this.retryOpenPort();
+            return;
+        }
+        this.openedPath = path;
+
         this.serialPort = new SerialPort({
-            path: this.config.serialPort,
+            path,
             baudRate: parseInt(this.config.baudRate as string, 10),
         });
 
         this.serialPort.on('open', () => {
             this.tempBytes = [];
             this.isPortOpen = true;
-            this.log.debug(`Serial port ${this.config.serialPort} opened`);
+            this.log.debug(`Serial port ${path} opened`);
             this.setState('info.connection', true, true).catch(err =>
                 this.log.error(`Cannot set info.connection state: ${err.message || err}`),
             );
@@ -254,6 +436,7 @@ export class WitMotionAdapter extends Adapter {
             }
             this.tempBytes = [];
             this.isPortOpen = false;
+            this.openedPath = '';
             this.serialPort = null;
             this.retryOpenPort();
         });
@@ -816,7 +999,7 @@ export class WitMotionAdapter extends Adapter {
         await this.syncGyroscopeObjects();
         await this.syncAngleObjects();
 
-        if (!this.config.serialPort) {
+        if (!this.isPortConfigured()) {
             return;
         }
 

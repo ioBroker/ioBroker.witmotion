@@ -2,13 +2,47 @@
     "type": "panel",
     "i18n": true,
     "items": {
+        "selectBy": {
+            "type": "select",
+            "label": "Select device by",
+            "options": [
+                {
+                    "value": "port",
+                    "label": "Serial port"
+                },
+                {
+                    "value": "device",
+                    "label": "USB device ID"
+                }
+            ],
+            "default": "port",
+            "lg": 2,
+            "md": 4,
+            "sm": 12
+        },
         "serialPort": {
+            "newLine": true,
             "type": "selectSendTo",
             "label": "Serial port",
             "command": "list",
             "default": "",
+            "hidden": "data.selectBy === 'device'",
             "lg": 2,
             "md": 4,
+            "sm": 12
+        },
+        "serialPortDeviceId": {
+            "newLine": true,
+            "type": "selectSendTo",
+            "label": "USB device",
+            "help": "Identified by vendor and product ID, so the OS may reassign the port name",
+            "command": "listDevices",
+            "default": "",
+            "manual": true,
+            "noTranslation": true,
+            "hidden": "data.selectBy !== 'device'",
+            "lg": 4,
+            "md": 6,
             "sm": 12
         },
         "baudRate": {
@@ -53,7 +87,7 @@
             "command": "test",
             "label": "Test",
             "variant": "contained",
-            "jsonData": "{ \"serialPort\": \"${data.serialPort}\", \"baudRate\": \"${data.baudRate}\" }",
+            "jsonData": "{ \"serialPort\": \"${data.serialPort}\", \"serialPortDeviceId\": \"${data.serialPortDeviceId}\", \"selectBy\": \"${data.selectBy}\", \"baudRate\": \"${data.baudRate}\" }",
             "result": {
                 "Sensor detected": {
                     "en": "Sensor detected",
