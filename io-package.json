@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "witmotion",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "news": {
+      "1.0.0": {
+        "en": "Added selection of the serial device by its stable USB ID (vendor/product/serial), so the connection keeps working even if the OS reassigns the port name\nBetter widget\nAllowed the selection of USB port by path and UUID",
+        "de": "Die Auswahl des seriellen Geräts anhand seiner stabilen USB-ID (Hersteller/Produkt/Seriell) wurde hinzugefügt, sodass die Verbindung auch dann funktioniert, wenn das Betriebssystem den Portnamen neu zuweist.\nBesseres Widget\nDie Auswahl des USB-Anschlusses über Pfad und UUID wurde ermöglicht.",
+        "ru": "Добавлена возможность выбора последовательного устройства по его стабильному USB-идентификатору (производитель/продукт/последовательный порт), благодаря чему соединение продолжает работать даже при изменении имени порта операционной системой.\nЛучший виджет\nРазрешен выбор USB-порта по пути и UUID.",
+        "pt": "Adicionada a seleção do dispositivo serial pelo seu ID USB estável (fornecedor/produto/serial), para que a conexão continue funcionando mesmo se o sistema operacional reatribuir o nome da porta.\nWidget melhorado\nPermitiu a seleção da porta USB por caminho e UUID.",
+        "nl": "Er is een optie toegevoegd om het seriële apparaat te selecteren op basis van de stabiele USB-ID (fabrikant/product/serieel), zodat de verbinding blijft werken, zelfs als het besturingssysteem de poortnaam wijzigt.\nBetere widget\nMaakte het mogelijk om een USB-poort te selecteren op basis van pad en UUID.",
+        "fr": "Ajout d'une sélection du périphérique série par son identifiant USB stable (fournisseur/produit/série), afin que la connexion reste fonctionnelle même si le système d'exploitation réattribue le nom du port.\nMeilleur widget\nPermettait la sélection du port USB par chemin et UUID",
+        "it": "Aggiunta la selezione del dispositivo seriale tramite il suo ID USB stabile (fornitore/prodotto/seriale), in modo che la connessione continui a funzionare anche se il sistema operativo riassegna il nome della porta.\nWidget migliore\nConsente la selezione della porta USB tramite percorso e UUID",
+        "es": "Se agregó la selección del dispositivo serie por su ID USB estable (proveedor/producto/serie), de modo que la conexión siga funcionando incluso si el sistema operativo reasigna el nombre del puerto.\nMejor widget\nPermitió la selección del puerto USB por ruta y UUID.",
+        "pl": "Dodano wybór urządzenia szeregowego według jego stabilnego identyfikatora USB (dostawca/produkt/numer seryjny), dzięki czemu połączenie będzie działać nawet jeśli system operacyjny zmieni nazwę portu\nLepszy widget\nUmożliwiono wybór portu USB według ścieżki i UUID",
+        "uk": "Додано вибір послідовного пристрою за його стабільним USB-ідентифікатором (виробник/продукт/серійний номер), щоб з'єднання продовжувало працювати, навіть якщо ОС перепризначає назву порту.\nКращий віджет\nДозволено вибір USB-порту за шляхом та UUID",
+        "zh-cn": "新增了通过稳定的 USB ID（厂商/产品/序列号）选择串口设备的功能，这样即使操作系统重新分配端口名称，连接也能继续保持正常。\n更好的小部件\n允许通过路径和 UUID 选择 USB 端口"
+      },
       "0.1.0": {
         "en": "Added visualisation for \"devices\" adapter\nAdded offset configuration for magnetometer",
         "de": "Visualisierung für \"Geräte\" Adapter hinzugefügt\nZusätzliche Offset-Konfiguration für Magnetometer",

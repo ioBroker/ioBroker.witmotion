@@ -28,7 +28,7 @@ The following data are read and written to ioBroker:
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.0 (2026-06-27)
 * (@GermanBluefox) Added selection of the serial device by its stable USB ID (vendor/product/serial), so the connection keeps working even if the OS reassigns the port name
 * (@GermanBluefox) Better widget
 * (@GermanBluefox) Allowed the selection of USB port by path and UUID
