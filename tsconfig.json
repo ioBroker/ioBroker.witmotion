@@ -10,9 +10,11 @@
         "skipLibCheck": true, // Don't report errors in 3rd party definitions
         "noEmitOnError": true,
         "outDir": "./build",
+        "rootDir": "./src",
         "esModuleInterop": true,
         "resolveJsonModule": true,
         "module": "Node16",
+        "strictNullChecks": true,
         "moduleResolution": "node16",
         "sourceMap": true, // required for debug
         "inlineSources": true, // required for debug
