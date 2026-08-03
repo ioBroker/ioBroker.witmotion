@@ -206,7 +206,7 @@ export class WitMotionAdapter extends Adapter {
         testPort.on('data', (data: Buffer): void => {
             const tempData: Buffer = Buffer.from(data);
             for (const byte of tempData) {
-                tempBytes.push(byte as unknown as number);
+                tempBytes.push(byte);
                 if (tempBytes.length === 2 && (tempBytes[0] !== 0x55 || tempBytes[1] !== 0x61)) {
                     tempBytes.shift();
                     continue;
@@ -445,7 +445,7 @@ export class WitMotionAdapter extends Adapter {
     async process(data: Buffer): Promise<void> {
         const tempData: Buffer = Buffer.from(data);
         for (const byte of tempData) {
-            this.tempBytes.push(byte as unknown as number);
+            this.tempBytes.push(byte);
             if (this.tempBytes.length === 2 && (this.tempBytes[0] !== 0x55 || this.tempBytes[1] !== 0x61)) {
                 this.tempBytes.shift();
                 continue;
