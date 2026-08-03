@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "witmotion",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "news": {
+      "2.0.0": {
+        "en": "Migrated to devices V3",
+        "de": "Auf Geräte V3 migriert",
+        "ru": "Перенесено на устройства V3",
+        "pt": "Migrado para dispositivos V3",
+        "nl": "Overgezet naar apparaten V3",
+        "fr": "Migration vers les appareils V3",
+        "it": "Migrazione ai dispositivi V3",
+        "es": "Migrado a dispositivos V3",
+        "pl": "Migracja do urządzeń V3",
+        "uk": "Перенесено на пристрої V3",
+        "zh-cn": "已迁移至设备 V3"
+      },
       "1.0.0": {
         "en": "Added selection of the serial device by its stable USB ID (vendor/product/serial), so the connection keeps working even if the OS reassigns the port name\nBetter widget\nAllowed the selection of USB port by path and UUID",
         "de": "Die Auswahl des seriellen Geräts anhand seiner stabilen USB-ID (Hersteller/Produkt/Seriell) wurde hinzugefügt, sodass die Verbindung auch dann funktioniert, wenn das Betriebssystem den Portnamen neu zuweist.\nBesseres Widget\nDie Auswahl des USB-Anschlusses über Pfad und UUID wurde ermöglicht.",
