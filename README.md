@@ -46,6 +46,8 @@ The following data are read and written to ioBroker:
 ### 0.0.3 (2026-01-23)
 * (@GermanBluefox) Initial commit
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 
 The MIT License (MIT)
