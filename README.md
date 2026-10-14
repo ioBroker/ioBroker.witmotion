@@ -44,22 +44,17 @@ The widget set **WitMotion** contains the widget **Orientation** with the same v
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 2.1.0 (2026-10-14)
+### **WORK IN PROGRESS**
 * (@GermanBluefox) Added device manager support
 * (@GermanBluefox) Added an orientation widget for vis-2
 * (@GermanBluefox) The used serial port (and in test mode the UDP port) is reported to js-controller 8 (`registerUsedResource`)
-
-### 2.0.0 (2026-08-03)
 * (@GermanBluefox) Migrated to devices V3
-
-### 1.0.0 (2026-06-27)
 * (@GermanBluefox) Added selection of the serial device by its stable USB ID (vendor/product/serial), so the connection keeps working even if the OS reassigns the port name
 * (@GermanBluefox) Better widget
 * (@GermanBluefox) Allowed the selection of USB port by path and UUID
-
-### 0.1.0 (2026-04-15)
 * (@GermanBluefox) Added visualisation for "devices" adapter
 * (@GermanBluefox) Added offset configuration for magnetometer
+* (@GermanBluefox) Fixed the integration test, because of it the versions 0.1.0 - 2.1.0 were never published
 
 ### 0.0.4 (2026-03-26)
 * (@GermanBluefox) Tests fixed
