@@ -37,7 +37,7 @@ interface ResourceRegistry {
 export class WitMotionAdapter extends Adapter {
     declare config: WitMotionAdapterConfig;
     private serialPort?: SerialPort | null;
-    private reconnectTimer: ReturnType<typeof setInterval> | null = null;
+    private reconnectTimer: ioBroker.Interval | undefined | null = null;
     private lastStates = new Map<string, Value>();
     private tempBytes: number[] = [];
     private isPortOpen = false;
@@ -57,7 +57,7 @@ export class WitMotionAdapter extends Adapter {
             unload: async callback => {
                 this.deviceManagement = null;
                 if (this.reconnectTimer) {
-                    clearTimeout(this.reconnectTimer);
+                    this.clearInterval(this.reconnectTimer);
                     this.reconnectTimer = null;
                 }
                 await this.closePort();
@@ -207,7 +207,7 @@ export class WitMotionAdapter extends Adapter {
             throw new Error(`Instance object ${objId} not found`);
         }
         Object.assign(obj.native, changes);
-        setTimeout(() => {
+        this.setTimeout(() => {
             this.setForeignObject(objId, obj, err => err && this.log.error(`Cannot save configuration: ${err}`));
         }, 500);
     }
@@ -218,7 +218,7 @@ export class WitMotionAdapter extends Adapter {
             portClosed = true;
             await this.closePort();
             if (this.reconnectTimer) {
-                clearInterval(this.reconnectTimer);
+                this.clearInterval(this.reconnectTimer);
                 this.reconnectTimer = null;
             }
         }
@@ -270,7 +270,7 @@ export class WitMotionAdapter extends Adapter {
         });
 
         // Wait up to 2 seconds for data
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 2000));
+        await new Promise<void>(resolve => this.setTimeout(() => resolve(), 2000));
 
         await new Promise<void>(resolve => {
             testPort.close(err => {
@@ -667,13 +667,13 @@ export class WitMotionAdapter extends Adapter {
             this.log.error(`Error closing serial serialPort: ${err.message || err}`),
         );
 
-        this.reconnectTimer ||= setInterval(() => {
+        this.reconnectTimer ||= this.setInterval(() => {
             if (!this.isPortOpen) {
                 this.openPort().catch(err => {
                     this.log.warn(`Error reopening serial serialPort: ${err.message || err}`);
                 });
             } else if (this.reconnectTimer) {
-                clearInterval(this.reconnectTimer);
+                this.clearInterval(this.reconnectTimer);
                 this.reconnectTimer = null;
             }
         }, 3000); // Alle 3 Sekunde prüfen

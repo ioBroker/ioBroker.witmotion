@@ -20,9 +20,11 @@
                         }
                     ],
                     "default": "port",
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "serialPort": {
                     "newLine": true,
@@ -31,9 +33,11 @@
                     "command": "list",
                     "default": "",
                     "hidden": "data.selectBy === 'device'",
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "serialPortDeviceId": {
                     "newLine": true,
@@ -45,9 +49,11 @@
                     "manual": true,
                     "noTranslation": true,
                     "hidden": "data.selectBy !== 'device'",
-                    "lg": 4,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 6,
-                    "sm": 12
+                    "lg": 4,
+                    "xl": 4
                 },
                 "baudRate": {
                     "newLine": true,
@@ -81,9 +87,11 @@
                         }
                     ],
                     "default": "115200",
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "_test": {
                     "newLine": true,
@@ -106,9 +114,11 @@
                             "ru": "Сенсор не обнаружен"
                         }
                     },
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "showProcess": true,
                     "icon": "send"
                 },
@@ -117,27 +127,33 @@
                     "text": "Accelerometer",
                     "size": 4,
                     "newLine": true,
-                    "lg": 12,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 12,
-                    "sm": 12
+                    "lg": 12,
+                    "xl": 12
                 },
                 "accelerometer": {
                     "label": "Enabled",
                     "type": "checkbox",
                     "default": true,
                     "newLine": true,
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "accelerometerUpdate": {
                     "label": "Minimum update interval",
                     "help": "ms",
                     "type": "number",
                     "default": 1000,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.accelerometer"
                 },
                 "accelerometerAverageInterval": {
@@ -146,9 +162,11 @@
                     "help": "ms",
                     "type": "number",
                     "default": 5000,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.accelerometer"
                 },
                 "_titleGyroscope": {
@@ -156,27 +174,33 @@
                     "text": "Gyroscope",
                     "size": 4,
                     "newLine": true,
-                    "lg": 12,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 12,
-                    "sm": 12
+                    "lg": 12,
+                    "xl": 12
                 },
                 "gyroscope": {
                     "label": "Enabled",
                     "type": "checkbox",
                     "default": true,
                     "newLine": true,
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "gyroscopeUpdate": {
                     "label": "Minimum update interval",
                     "help": "ms",
                     "type": "number",
                     "default": 1000,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.gyroscope"
                 },
                 "agyroscopeAverageInterval": {
@@ -186,36 +210,44 @@
                     "type": "number",
                     "default": 5000,
                     "hidden": "!data.gyroscope",
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "_headerMagnetometer": {
                     "type": "header",
                     "text": "Magnetometer",
                     "size": 4,
                     "newLine": true,
-                    "lg": 12,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 12,
-                    "sm": 12
+                    "lg": 12,
+                    "xl": 12
                 },
                 "magnetometer": {
                     "label": "Enabled",
                     "type": "checkbox",
                     "default": true,
                     "newLine": true,
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "magnetometerUpdate": {
                     "label": "Minimum update interval",
                     "help": "ms",
                     "type": "number",
                     "default": 1000,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.magnetometer"
                 },
                 "magnetometerAverageInterval": {
@@ -225,36 +257,44 @@
                     "type": "number",
                     "default": 5000,
                     "hidden": "!data.magnetometer",
-                    "lg": 2,
+                    "xs": 12,
+                    "sm": 12,
                     "md": 4,
-                    "sm": 12
+                    "lg": 2,
+                    "xl": 2
                 },
                 "magnetometer360x": {
                     "newLine": true,
                     "type": "checkbox",
                     "label": "Use 0-360° for angle X",
                     "default": false,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.magnetometer"
                 },
                 "magnetometer360y": {
                     "type": "checkbox",
                     "label": "Use 0-360° for angle Y",
                     "default": false,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.magnetometer"
                 },
                 "magnetometer360z": {
                     "type": "checkbox",
                     "label": "Use 0-360° for angle Z",
                     "default": false,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.magnetometer"
                 },
                 "magnetometerOffsetX": {
@@ -263,9 +303,11 @@
                     "label": "Offset X",
                     "help": "°",
                     "default": 0,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.magnetometer"
                 },
                 "magnetometerOffsetY": {
@@ -273,9 +315,11 @@
                     "label": "Offset Y",
                     "help": "°",
                     "default": 0,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.magnetometer"
                 },
                 "magnetometerOffsetZ": {
@@ -283,9 +327,11 @@
                     "label": "Offset Z",
                     "help": "°",
                     "default": 0,
-                    "lg": 2,
-                    "md": 4,
+                    "xs": 12,
                     "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
                     "hidden": "!data.magnetometer"
                 }
             }
@@ -296,7 +342,11 @@
             "items": {
                 "_dm": {
                     "type": "deviceManager",
+                    "xs": 12,
                     "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12,
                     "style": {
                         "width": "100%",
                         "height": "100%",
