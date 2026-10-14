@@ -18,5 +18,7 @@
     "Select device by": "Apparaat selecteren op",
     "USB device ID": "USB-apparaat-ID",
     "USB device": "USB-apparaat",
-    "Identified by vendor and product ID, so the OS may reassign the port name": "Geïdentificeerd op leveranciers- en product-ID, zodat het besturingssysteem de poortnaam opnieuw kan toewijzen"
+    "Identified by vendor and product ID, so the OS may reassign the port name": "Geïdentificeerd op leveranciers- en product-ID, zodat het besturingssysteem de poortnaam opnieuw kan toewijzen",
+    "Main settings": "Hoofdinstellingen",
+    "Device manager": "Apparaatbeheer"
 }

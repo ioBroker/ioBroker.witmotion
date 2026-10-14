@@ -3,6 +3,7 @@ import { existsSync, readdirSync, realpathSync } from 'node:fs';
 import { SerialPort } from 'serialport';
 import { Adapter, type AdapterOptions } from '@iobroker/adapter-core'; // Get common adapter utils
 import type { WitMotionAdapterConfig } from './types';
+import { WitMotionDeviceManagement, type PortOption } from './lib/DeviceManagement';
 
 interface Value {
     value: number;
@@ -22,6 +23,17 @@ interface SerialPortInfo {
     byPath?: string;
 }
 
+// Exclusive-resource registry of js-controller 8 (the part used here). The installed types and
+// older controllers do not have it, so it is probed at runtime.
+type SerialPortResource = { port: string; baudRate?: number };
+type UdpPortResource = { port: number; bind?: string };
+interface ResourceRegistry {
+    registerUsedResource(type: 'serialPort', data: SerialPortResource): Promise<void>;
+    registerUsedResource(type: 'udpPort', data: UdpPortResource): Promise<void>;
+    freeUsedResource?(type: 'serialPort', data?: Partial<SerialPortResource>): Promise<void>;
+    checkUsedResource?(type: 'serialPort', data?: Partial<SerialPortResource>): Promise<{ instance: string }[]>;
+}
+
 export class WitMotionAdapter extends Adapter {
     declare config: WitMotionAdapterConfig;
     private serialPort?: SerialPort | null;
@@ -32,12 +44,18 @@ export class WitMotionAdapter extends Adapter {
     private udpServer?: Socket;
     /** Path of the currently opened serial port (resolved from config; may differ from config.serialPort in USB device mode) */
     private openedPath = '';
+    /** Serial port reported to js-controller as used by this instance */
+    private registeredPath = '';
+    /** Serial port for which the "used by another instance" check already ran */
+    private checkedPath = '';
+    private deviceManagement: WitMotionDeviceManagement | null = null;
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
             ...options,
             name: 'witmotion',
             unload: async callback => {
+                this.deviceManagement = null;
                 if (this.reconnectTimer) {
                     clearTimeout(this.reconnectTimer);
                     this.reconnectTimer = null;
@@ -47,24 +65,15 @@ export class WitMotionAdapter extends Adapter {
                 callback();
             },
             message: async obj => {
-                // read all serial ports and give them back to GUI
-                if (obj) {
+                // read all serial ports and give them back to GUI.
+                // `dm:*` commands are answered by the device manager, which listens on its own
+                if (obj && !obj.command?.startsWith('dm:')) {
                     switch (obj.command) {
                         case 'list':
                             if (obj.callback) {
                                 try {
                                     // read all found serial ports
-                                    const ports = await SerialPort.list();
-                                    this.log.info(`List of serialPort: ${JSON.stringify(ports)}`);
-                                    this.sendTo(
-                                        obj.from,
-                                        obj.command,
-                                        ports.map(item => ({
-                                            label: item.path,
-                                            value: item.path,
-                                        })),
-                                        obj.callback,
-                                    );
+                                    this.sendTo(obj.from, obj.command, await this.listPortOptions(), obj.callback);
                                 } catch (e) {
                                     this.log.error(`Cannot list ports: ${e}`);
                                     this.sendTo(
@@ -81,20 +90,8 @@ export class WitMotionAdapter extends Adapter {
                         case 'listDevices':
                             if (obj.callback) {
                                 try {
-                                    // read all found serial ports and expose them by their stable USB ID.
-                                    // Keep USB devices: either VID/PID was parsed, or the pnpId is a USB path
-                                    // (this excludes Bluetooth/BTHENUM virtual COM ports).
-                                    const ports = await WitMotionAdapter.listSerialDevices();
-                                    const devices = ports
-                                        .filter(
-                                            port =>
-                                                (port.vendorId && port.productId) ||
-                                                port.pnpId?.toUpperCase().startsWith('USB'),
-                                        )
-                                        .map(port => ({
-                                            label: WitMotionAdapter.makeDeviceLabel(port),
-                                            value: WitMotionAdapter.makeDeviceId(port),
-                                        }));
+                                    // read all found serial ports and expose them by their stable USB ID
+                                    const devices = await this.listDeviceOptions();
                                     this.sendTo(
                                         obj.from,
                                         obj.command,
@@ -158,6 +155,61 @@ export class WitMotionAdapter extends Adapter {
             },
             ready: () => this.main(),
         });
+    }
+
+    /** Path of the serial port that is open right now, or an empty string */
+    public getOpenedPath(): string {
+        return this.isPortOpen ? this.openedPath : '';
+    }
+
+    /** Serial ports of this host by their path */
+    public async listPortOptions(): Promise<PortOption[]> {
+        const ports = await SerialPort.list();
+        this.log.info(`List of serialPort: ${JSON.stringify(ports)}`);
+        return ports.map(item => ({ label: item.path, value: item.path }));
+    }
+
+    /**
+     * USB serial devices of this host by their stable USB ID. Keeps USB devices only: either VID/PID was
+     * parsed, or the pnpId is a USB path (this excludes Bluetooth/BTHENUM virtual COM ports).
+     */
+    public async listDeviceOptions(): Promise<PortOption[]> {
+        const ports = await WitMotionAdapter.listSerialDevices();
+        return ports
+            .filter(port => (port.vendorId && port.productId) || port.pnpId?.toUpperCase().startsWith('USB'))
+            .map(port => ({
+                label: WitMotionAdapter.makeDeviceLabel(port),
+                value: WitMotionAdapter.makeDeviceId(port),
+            }));
+    }
+
+    /** Listens on the configured port for sensor packets */
+    public async testConnection(): Promise<boolean> {
+        const path = await this.resolveSerialPortPath();
+        if (!path) {
+            throw new Error(this.config.selectBy === 'device' ? 'USB device not found' : 'No serial port configured');
+        }
+        return this.test(path, this.config.baudRate);
+    }
+
+    /**
+     * Change a part of the configuration.
+     *
+     * The in-memory configuration is updated at once, so the device manager shows the change on its next
+     * refresh. The instance object is written a moment later: that restarts the adapter, and the answer to
+     * the GUI must leave before.
+     */
+    public async saveConfig(changes: Partial<WitMotionAdapterConfig>): Promise<void> {
+        Object.assign(this.config, changes);
+        const objId = `system.adapter.${this.namespace}`;
+        const obj = await this.getForeignObjectAsync(objId);
+        if (!obj) {
+            throw new Error(`Instance object ${objId} not found`);
+        }
+        Object.assign(obj.native, changes);
+        setTimeout(() => {
+            this.setForeignObject(objId, obj, err => err && this.log.error(`Cannot save configuration: ${err}`));
+        }, 500);
     }
 
     private async test(serialPort: string, baudRate: string | number): Promise<boolean> {
@@ -254,6 +306,7 @@ export class WitMotionAdapter extends Adapter {
                 this.log.debug(
                     `UDP server listening on ${typeof address === 'string' ? address : `${address.address}:${address.port} for test purposes`}`,
                 );
+                void this.registerUsedUdpPort(port);
             });
 
             sock.bind(port);
@@ -280,6 +333,65 @@ export class WitMotionAdapter extends Adapter {
                 resolve();
             }
         });
+    }
+
+    /** The exclusive-resource API of js-controller 8, or null if the controller does not have it */
+    private resourceRegistry(): ResourceRegistry | null {
+        const registry = this as unknown as ResourceRegistry;
+        return typeof registry.registerUsedResource === 'function' ? registry : null;
+    }
+
+    /** Warns once per port if another instance already holds the serial port that is about to be opened */
+    private async warnAboutUsedSerialPort(path: string): Promise<void> {
+        const registry = this.resourceRegistry();
+        if (!registry?.checkUsedResource || this.checkedPath === path) {
+            return;
+        }
+        this.checkedPath = path;
+        try {
+            const holders = await registry.checkUsedResource('serialPort', { port: path });
+            if (holders.length) {
+                this.log.warn(
+                    `Serial port ${path} is already used by ${holders.map(h => h.instance).join(', ')}. The sensor will probably not be readable.`,
+                );
+            }
+        } catch (err) {
+            this.log.debug(`Cannot check if serial port ${path} is free: ${(err as Error).message}`);
+        }
+    }
+
+    /** Reports the opened serial port to js-controller (>= 8), so it shows up as occupied */
+    private async registerUsedSerialPort(path: string): Promise<void> {
+        const registry = this.resourceRegistry();
+        if (!registry || this.registeredPath === path) {
+            return;
+        }
+        try {
+            // In USB device mode the same sensor can come back under another name after re-plugging
+            if (this.registeredPath && registry.freeUsedResource) {
+                await registry.freeUsedResource('serialPort', { port: this.registeredPath });
+            }
+            this.registeredPath = path;
+            await registry.registerUsedResource('serialPort', {
+                port: path,
+                baudRate: parseInt(this.config.baudRate as string, 10) || undefined,
+            });
+        } catch (err) {
+            this.log.warn(`Cannot register serial port ${path} as used: ${(err as Error).message}`);
+        }
+    }
+
+    /** Reports the UDP port of the test mode to js-controller (>= 8), so it shows up as occupied */
+    private async registerUsedUdpPort(port: number): Promise<void> {
+        const registry = this.resourceRegistry();
+        if (!registry) {
+            return;
+        }
+        try {
+            await registry.registerUsedResource('udpPort', { port });
+        } catch (err) {
+            this.log.warn(`Cannot register UDP port ${port} as used: ${(err as Error).message}`);
+        }
     }
 
     /**
@@ -398,6 +510,9 @@ export class WitMotionAdapter extends Adapter {
             this.retryOpenPort();
             return;
         }
+        // Ask js-controller (>= 8) first whether another instance holds the port, so a failing open can name it
+        await this.warnAboutUsedSerialPort(path);
+
         this.openedPath = path;
 
         this.serialPort = new SerialPort({
@@ -412,6 +527,7 @@ export class WitMotionAdapter extends Adapter {
             this.setState('info.connection', true, true).catch(err =>
                 this.log.error(`Cannot set info.connection state: ${err.message || err}`),
             );
+            void this.registerUsedSerialPort(path);
         });
 
         this.serialPort.on('data', async (data: Buffer): Promise<void> => this.process(data));
@@ -987,6 +1103,9 @@ export class WitMotionAdapter extends Adapter {
     }
 
     async main(): Promise<void> {
+        // The device manager only reads the configuration and the states, so it works without a sensor too
+        this.deviceManagement = new WitMotionDeviceManagement(this);
+
         await this.setStateAsync('info.connection', false, true);
 
         if (this.config.test) {

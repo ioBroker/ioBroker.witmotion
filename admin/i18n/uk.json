@@ -18,5 +18,7 @@
     "Select device by": "Вибрати пристрій за",
     "USB device ID": "Ідентифікатор USB-пристрою",
     "USB device": "USB-пристрій",
-    "Identified by vendor and product ID, so the OS may reassign the port name": "Визначається за ідентифікатором виробника та продукту, тож ОС може перепризначити назву порту"
+    "Identified by vendor and product ID, so the OS may reassign the port name": "Визначається за ідентифікатором виробника та продукту, тож ОС може перепризначити назву порту",
+    "Main settings": "Основні налаштування",
+    "Device manager": "Менеджер пристроїв"
 }

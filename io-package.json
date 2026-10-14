@@ -96,6 +96,10 @@
     "readme": "https://github.com/ioBroker/ioBroker.witmotion/blob/master/README.md",
     "loglevel": "info",
     "messagebox": true,
+    "supportedMessages": {
+      "deviceManager": true
+    },
+    "declareUsedResources": true,
     "icon": "witmotion.png",
     "adminUI": {
       "config": "json"
@@ -130,11 +134,25 @@
     ],
     "globalDependencies": [
       {
-        "admin": ">=7.6.17"
+        "admin": ">=7.8.23"
       }
     ],
+    "visWidgets": {
+      "vis2WitMotionWidgets": {
+        "i18n": "component",
+        "name": "vis2WitMotionWidgets",
+        "url": "witmotion/customWidgets.js",
+        "bundlerType": "module",
+        "color": "#1976d2",
+        "label": "wit_set_label",
+        "components": [
+          "WitMotionOrientation"
+        ]
+      }
+    },
     "restartAdapters": [
-      "devices"
+      "devices",
+      "vis-2"
     ]
   },
   "native": {

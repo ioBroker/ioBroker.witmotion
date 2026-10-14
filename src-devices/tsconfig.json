@@ -5,20 +5,23 @@
         "lib": ["DOM", "DOM.Iterable", "ESNext"],
         "allowJs": false,
         "skipLibCheck": true,
-        "esModuleInterop": false,
+        "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "strict": true,
         "forceConsistentCasingInFileNames": true,
         "module": "ESNext",
-        "moduleResolution": "Node",
+        "moduleResolution": "Bundler",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
         "jsx": "react-jsx",
-        "baseUrl": ".",
-        "types": ["vite/client", "@iobroker/types"]
+        "types": ["vite/client", "@iobroker/types"],
+        "paths": {
+            "react": ["./node_modules/@types/react"],
+            "react/*": ["./node_modules/@types/react/*"]
+        }
     },
-    "include": ["src"],
+    "include": ["src", "../src-shared"],
     "references": [
         {
             "path": "./tsconfig.node.json"

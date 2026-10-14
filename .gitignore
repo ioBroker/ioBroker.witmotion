@@ -10,4 +10,7 @@ BWT901BLE5/
 /src-devices/.__mf__temp/
 admin/dm-widgets/
 src-devices/build
+/src-widgets/.__mf__temp/
+src-widgets/build
+widgets/
 /.claude/settings.local.json

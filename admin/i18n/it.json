@@ -18,5 +18,7 @@
     "Select device by": "Seleziona dispositivo per",
     "USB device ID": "ID dispositivo USB",
     "USB device": "Dispositivo USB",
-    "Identified by vendor and product ID, so the OS may reassign the port name": "Identificato tramite ID fornitore e prodotto, così il sistema operativo può riassegnare il nome della porta"
+    "Identified by vendor and product ID, so the OS may reassign the port name": "Identificato tramite ID fornitore e prodotto, così il sistema operativo può riassegnare il nome della porta",
+    "Main settings": "Impostazioni principali",
+    "Device manager": "Gestione dispositivi"
 }

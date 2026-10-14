@@ -23,11 +23,32 @@ The following data are read and written to ioBroker:
 ## Supported devices
 - [WT901blecl 5.0](https://witmotion-sensor.com/products/bluetooth-5-0-accelerometer-inclinometer-wt901blecl-mpu9250-9-axis-imu-sensor)
 
+## Device manager
+The tab **Device manager** in the instance settings (or the device manager of admin) shows the sensor as a card with its connection and the angles (roll, pitch, yaw). The details list all enabled values and the connection. From the card you can test the connection and change the serial port and the baud rate.
+
+## Visualisation
+### Devices app
+Add a custom widget of the type **Wit Motion** and select the instance. The tile shows a boat, a car or your own picture tilted by the measured angle, or a compass for the top view.
+
+- `1x1` – one axis
+- `2x½` – the values only
+- `2x1` – one axis with its value or two axes side by side
+
+A click on the tile opens a big view.
+
+### vis-2
+The widget set **WitMotion** contains the widget **Orientation** with the same views. The layout follows the size of the widget (bar, compact, wide or big view) or can be fixed in the settings. A click on the smaller layouts opens the big view.
+
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (@GermanBluefox) Added device manager support
+* (@GermanBluefox) Added an orientation widget for vis-2
+* (@GermanBluefox) The used serial port (and in test mode the UDP port) is reported to js-controller 8 (`registerUsedResource`)
+
 ### 2.0.0 (2026-08-03)
 * (@GermanBluefox) Migrated to devices V3
 

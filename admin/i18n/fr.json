@@ -18,5 +18,7 @@
     "Select device by": "Sélectionner l’appareil par",
     "USB device ID": "ID de périphérique USB",
     "USB device": "Périphérique USB",
-    "Identified by vendor and product ID, so the OS may reassign the port name": "Identifié par l’ID du fabricant et du produit, afin que le système puisse réattribuer le nom du port"
+    "Identified by vendor and product ID, so the OS may reassign the port name": "Identifié par l’ID du fabricant et du produit, afin que le système puisse réattribuer le nom du port",
+    "Main settings": "Paramètres principaux",
+    "Device manager": "Gestionnaire de périphériques"
 }

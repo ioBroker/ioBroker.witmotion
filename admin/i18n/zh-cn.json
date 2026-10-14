@@ -18,5 +18,7 @@
     "Select device by": "设备选择方式",
     "USB device ID": "USB 设备 ID",
     "USB device": "USB 设备",
-    "Identified by vendor and product ID, so the OS may reassign the port name": "通过供应商和产品 ID 识别，因此操作系统可以重新分配端口名称"
+    "Identified by vendor and product ID, so the OS may reassign the port name": "通过供应商和产品 ID 识别，因此操作系统可以重新分配端口名称",
+    "Main settings": "主要设置",
+    "Device manager": "设备管理器"
 }
