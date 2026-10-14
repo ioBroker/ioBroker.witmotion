@@ -44,7 +44,7 @@ The widget set **WitMotion** contains the widget **Orientation** with the same v
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.1.0 (2026-10-14)
 * (@GermanBluefox) Added device manager support
 * (@GermanBluefox) Added an orientation widget for vis-2
 * (@GermanBluefox) The used serial port (and in test mode the UDP port) is reported to js-controller 8 (`registerUsedResource`)
@@ -63,9 +63,6 @@ The widget set **WitMotion** contains the widget **Orientation** with the same v
 
 ### 0.0.4 (2026-03-26)
 * (@GermanBluefox) Tests fixed
-
-### 0.0.3 (2026-01-23)
-* (@GermanBluefox) Initial commit
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

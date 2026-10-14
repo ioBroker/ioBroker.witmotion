@@ -1,7 +1,7 @@
 {
     "name": "iobroker.vis-2-widgets-witmotion",
     "private": true,
-    "version": "2.0.0",
+    "version": "2.1.0",
     "type": "module",
     "description": "vis-2 widget set of ioBroker.witmotion. Built into ../widgets/witmotion.",
     "scripts": {

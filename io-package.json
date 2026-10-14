@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "witmotion",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "news": {
+      "2.1.0": {
+        "en": "Added device manager support\nAdded an orientation widget for vis-2\nThe used serial port (and in test mode the UDP port) is reported to js-controller 8 (`registerUsedResource`)",
+        "de": "Gerätemanager-Support hinzugefügt\nOrientierungs-Widget für Vis-2 hinzugefügt\nDer serielle Port (und im Testmodus der UDP-Port) wird an js-controller 8 (`registerUsedResource`) gemeldet",
+        "ru": "Добавлена поддержка диспетчера устройств\nДобавлен виджет ориентации для vis-2\nИспользованный последовательный порт (а в тестовом режиме порт UDP) сообщается в js-controller 8 (`RegisterUsedResource`)",
+        "pt": "Maior suporte ao Device Manager\nAdição de widget de orientação para vis-2\nA porta serial usada (e no modo de teste a porta UDP) é relatada ao js-controller 8 (`registerUsedResource`)",
+        "nl": "Ondersteuning voor apparaatbeheer toegevoegd\nEen oriëntatiewidget toegevoegd voor vis-2\nDe gebruikte seriële poort (en in testmodus de UDP-poort) wordt gerapporteerd aan js-controller 8 (`RegisterUsedResource`)",
+        "fr": "Ajout du support Device Manager\nAjout d'un widget d'orientation pour Vis-2\nLe port série utilisé (et en mode test, le port UDP) est signalé à js-controller 8 (« RegisterUsedResource »)",
+        "it": "Aggiunto supporto Device Manager\nAggiunto un widget per vis-2\nLa porta seriale usata (e in modalità test la porta UDP) è segnalata a js-controller 8",
+        "es": "Más soporte de gestión de dispositivos\nAñadió un widget de orientación para vis-2\nEl puerto serie usado (y en modo prueba el puerto UDP) se envía a js-controller 8 (`RegisterUsedResource`)",
+        "pl": "Dodano obsługę menedżera urządzeń\nDodano widżet orientacji dla vis-2\nUżyty port szeregowy (a w trybie testowym port UDP) jest zgłaszany do js-controller 8 („RegisterUsedResource”)",
+        "uk": "Додана підтримка диспетчера пристроїв\nДодано віджет орієнтації для vis-2\nВикористовуваний послідовний порт (а в тестовому режимі порт UDP) повідомляється js-контролеру 8 (`RegisterUsedResource`)",
+        "zh-cn": "增加了设备管理器支持\n为 vis-2 添加了方向控件\n将使用的串行端口（在测试模式下还有 UDP 端口）报告给 js-controller 8（`registerUsedResource`）"
+      },
       "2.0.0": {
         "en": "Migrated to devices V3",
         "de": "Auf Geräte V3 migriert",
