@@ -27,7 +27,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             unload: async (callback) => {
                 this.deviceManagement = null;
                 if (this.reconnectTimer) {
-                    clearTimeout(this.reconnectTimer);
+                    this.clearInterval(this.reconnectTimer);
                     this.reconnectTimer = null;
                 }
                 await this.closePort();
@@ -139,7 +139,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             throw new Error(`Instance object ${objId} not found`);
         }
         Object.assign(obj.native, changes);
-        setTimeout(() => {
+        this.setTimeout(() => {
             this.setForeignObject(objId, obj, err => err && this.log.error(`Cannot save configuration: ${err}`));
         }, 500);
     }
@@ -149,7 +149,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             portClosed = true;
             await this.closePort();
             if (this.reconnectTimer) {
-                clearInterval(this.reconnectTimer);
+                this.clearInterval(this.reconnectTimer);
                 this.reconnectTimer = null;
             }
         }
@@ -194,7 +194,7 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             }
         });
         // Wait up to 2 seconds for data
-        await new Promise(resolve => setTimeout(() => resolve(), 2000));
+        await new Promise(resolve => this.setTimeout(() => resolve(), 2000));
         await new Promise(resolve => {
             testPort.close(err => {
                 if (err) {
@@ -510,14 +510,14 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
     }
     retryOpenPort() {
         this.closePort().catch((err) => this.log.error(`Error closing serial serialPort: ${err.message || err}`));
-        this.reconnectTimer ||= setInterval(() => {
+        this.reconnectTimer ||= this.setInterval(() => {
             if (!this.isPortOpen) {
                 this.openPort().catch(err => {
                     this.log.warn(`Error reopening serial serialPort: ${err.message || err}`);
                 });
             }
             else if (this.reconnectTimer) {
-                clearInterval(this.reconnectTimer);
+                this.clearInterval(this.reconnectTimer);
                 this.reconnectTimer = null;
             }
         }, 3000); // Alle 3 Sekunde prüfen
