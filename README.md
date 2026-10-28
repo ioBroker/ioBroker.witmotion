@@ -44,7 +44,7 @@ The widget set **WitMotion** contains the widget **Orientation** with the same v
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.1.2 (2026-10-28)
 * (@GermanBluefox) Fixed the missing translations of the widget set, the widget name and the help in vis-2
 
 ### 2.1.1 (2026-10-14)
