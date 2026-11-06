@@ -33,6 +33,7 @@ export default [
             'src-devices/**/*',
             'src-widgets/**/*',
             'src-shared/**/*',
+            'src-webcomponents/**/*',
             'widgets/**/*',
             'node_modules/**/*',
         ],

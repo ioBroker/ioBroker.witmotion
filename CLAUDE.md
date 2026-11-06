@@ -8,7 +8,7 @@ ioBroker adapter for WitMotion WT901blecl 5.0 (9-axis IMU sensor). Reads acceler
 
 ## Commands
 
-- **Build:** `npm run build` — two stages: (1) `tsc -p tsconfig.build.json` compiles the adapter to `build/`, then (2) `tsx tasks.ts` builds the React tile for the devices app from `src-devices/` (→ `admin/dm-widgets/`) and the vis-2 widget set from `src-widgets/` (→ `widgets/witmotion/`). The `tasks.ts` step (run with `tsx`, e.g. `npx tsx tasks.ts --3-copy`) can run in phases: `--0-clean`, `--1-npm` (install `src-devices` and `src-widgets` deps), `--2-build` (Vite builds), `--3-copy`. Both outputs are gitignored and built on publish.
+- **Build:** `npm run build` — two stages: (1) `tsc -p tsconfig.build.json` compiles the adapter to `build/`, then (2) `tsx tasks.ts` builds the React tile for the devices app from `src-devices/` (→ `admin/dm-widgets/`) and the vis-2 widget set from `src-widgets/` (→ `widgets/witmotion/`). The `tasks.ts` step (run with `tsx`, e.g. `npx tsx tasks.ts --3-copy`) can run in phases: `--0-clean`, `--1-npm` (install `src-devices`, `src-widgets` and `src-webcomponents` deps), `--2-build` (Vite builds), `--3-copy`, and it builds the web component from `src-webcomponents/` (→ `admin/webcomponents/`). `npm run build:wc` (`tsx tasks.ts --wc`) builds the web component alone; `npm run lint:wc` / `check:wc` lint and type-check it. All outputs are gitignored and built on publish.
 - **Lint:** `npm run lint`
 - **Test all:** `npm test` (runs integration tests)
 - **Integration tests:** `npm run test:integration` (mocha, requires js-controller instance)
@@ -17,14 +17,15 @@ ioBroker adapter for WitMotion WT901blecl 5.0 (9-axis IMU sensor). Reads acceler
 
 ## Architecture
 
-This repo holds the adapter and three front-end folders:
+This repo holds the adapter and four front-end folders:
 
 1. **The adapter** — backend in `src/main.ts`. The `WitMotionAdapter` class extends `@iobroker/adapter-core`'s `Adapter`. This is the runtime that talks to the sensor and writes states. `src/lib/DeviceManagement.ts` (`WitMotionDeviceManagement`, `@iobroker/dm-utils`) feeds admin's device manager: one card for the sensor, details with all enabled values, actions "test connection" and "connection settings" (writes the config → restart). Its texts are in `src/lib/i18n.ts` (all languages inline). `dm:*` messages are answered by the device manager, so the adapter's own message handler skips them.
 2. **`src-shared/`** — the orientation views (`OrientationView.tsx`, settings/helpers in `orientation.ts`), the boat/car pictures and the i18n (`wit_`-prefixed keys). Plain elements, no MUI and no hooks, so both hosts can render them with their own React.
 3. **`src-devices/`** — the tile for ioBroker's "devices" app (`@iobroker/dm-widgets`), main component `WitMotionComponent.tsx`, built via module federation into `admin/dm-widgets/customDevices.js`. Draws only the tile frame and the dialog around the shared views.
 4. **`src-widgets/`** — the vis-2 widget set (`WitMotionOrientation.tsx`), built via module federation into `widgets/witmotion/customWidgets.js`. Registered in `io-package.json` under `common.visWidgets`.
+5. **`src-webcomponents/`** — the web component `<iob-witmotion-orientation>` (`@iobroker/web-components`) for Aura, admin and every other host, one ES module `admin/webcomponents/witmotion-orientation.js` plus its manifest `.json` (written and checked by the Vite build, listed in `common.webComponents`). Takes React from the host (`lib/esm/react-19.js`), reuses `Compass`/`ObjectIcon` of `src-shared` and lays the views out with container queries; the pictures go to `admin/webcomponents/img/`. Its `name` is the label of the devices tile, so devices hides it next to its own tile.
 
-The three front-end folders have their own `package.json`/`node_modules`; `src-shared` resolves `react` from the project that builds it (Vite `dedupe`). Edit them only when changing the visualisation, not the sensor logic.
+The front-end folders have their own `package.json`/`node_modules`; `src-shared` resolves `react` from the project that builds it (Vite `dedupe`). Edit them only when changing the visualisation, not the sensor logic.
 
 ### Data Flow
 
