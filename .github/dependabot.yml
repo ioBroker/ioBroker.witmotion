@@ -32,6 +32,7 @@ updates:
     directories:
       - '/src-devices'
       - '/src-widgets'
+      - '/src-webcomponents'
     schedule:
       interval: 'cron'
       timezone: 'Europe/Berlin'

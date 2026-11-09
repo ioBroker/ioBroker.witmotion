@@ -12,5 +12,8 @@ admin/dm-widgets/
 src-devices/build
 /src-widgets/.__mf__temp/
 src-widgets/build
+# web component: built with vite into admin/webcomponents/, which is built on publish like admin/dm-widgets/
+src-webcomponents/build
+admin/webcomponents/
 widgets/
 /.claude/settings.local.json

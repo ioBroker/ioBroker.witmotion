@@ -50,12 +50,15 @@
     "test": "npm run test:integration",
     "lint": "eslint -c eslint.config.mjs",
     "build": "tsc -p tsconfig.build.json && tsx tasks.ts",
+    "build:wc": "tsx tasks.ts --wc",
+    "lint:wc": "cd src-webcomponents && npm run lint",
+    "check:wc": "cd src-webcomponents && npm run check-ts",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",
     "release-major": "release-script major --yes",
-    "update-packages": "npx -y npm-check-updates --upgrade && cd src-devices && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade",
-    "npm": "npm i && cd src-devices && npm i -f && cd ../src-widgets && npm i -f"
+    "update-packages": "npx -y npm-check-updates --upgrade && cd src-devices && npx -y npm-check-updates --upgrade && cd ../src-widgets && npx -y npm-check-updates --upgrade && cd ../src-webcomponents && npx -y npm-check-updates --upgrade",
+    "npm": "npm i && cd src-devices && npm i -f && cd ../src-widgets && npm i -f && cd ../src-webcomponents && npm i"
   },
   "engines": {
     "node": ">=22.0.0"

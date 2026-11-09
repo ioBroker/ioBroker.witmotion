@@ -104,7 +104,19 @@
       "components": [
         {
           "name": "WitMotionComponent",
-          "label": "Wit Motion",
+          "label": {
+            "en": "Wit Motion",
+            "de": "Wit Motion",
+            "ru": "Wit Motion",
+            "pt": "Wit Motion",
+            "nl": "Wit Motion",
+            "fr": "Wit Motion",
+            "it": "Wit Motion",
+            "es": "Wit Motion",
+            "pl": "Wit Motion",
+            "uk": "Wit Motion",
+            "zh-cn": "Wit Motion"
+          },
           "description": {
             "de": "Zeigt die Neigungsgrad und Compass-Richtung an",
             "en": "Shows the tilt degree and compass direction",
@@ -137,6 +149,9 @@
         ]
       }
     },
+    "webComponents": [
+      "webcomponents/witmotion-orientation.json"
+    ],
     "restartAdapters": [
       "devices",
       "vis-2"
