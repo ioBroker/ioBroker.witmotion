@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "witmotion",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "news": {
+      "2.1.2": {
+        "en": "Fixed the missing translations of the widget set, the widget name and the help in vis-2",
+        "de": "Fehlende Übersetzungen von Widget-Set, Widget-Name und Hilfe in Vis-2 behoben",
+        "ru": "Исправлены недостающие переводы набора виджетов, имени виджета и справки в vis-2",
+        "pt": "Corrigido a falta de traduções do widget, o nome do widget e a ajuda no vis-2",
+        "nl": "De ontbrekende vertalingen van de widgetset, de widgetnaam en de help in vis-2 opgelost",
+        "fr": "Correction des traductions manquantes du jeu de widgets, du nom du widget et de l'aide dans Vis-2",
+        "it": "Risolte le traduzioni mancanti del set di widget, del nome e dell'aiuto in vis-2",
+        "es": "Se corrigieron las traducciones que faltaban en la serie de widgets, su nombre y la ayuda en vis-2",
+        "pl": "Naprawiono brakujące tłumaczenia zestawu widżetów, nazwy widżetu i pomocy w vis-2",
+        "uk": "Виправлено відсутні переклади набору віджетів, ім'я віджета та довідка у vis-2",
+        "zh-cn": "修复了 vis-2 中控件集、控件名称和帮助文件缺少翻译的问题"
+      },
       "2.1.1": {
         "en": "Added device manager support\nAdded an orientation widget for vis-2\nThe used serial port (and in test mode the UDP port) is reported to js-controller 8 (`registerUsedResource`)\nMigrated to devices V3\nAdded selection of the serial device by its stable USB ID (vendor/product/serial), so the connection keeps working even if the OS reassigns the port name\nBetter widget\nAllowed the selection of USB port by path and UUID\nAdded visualisation for \"devices\" adapter\nAdded offset configuration for magnetometer\nFixed the integration test, because of it the versions 0.1.0 - 2.1.0 were never published",
         "de": "Gerätemanager-Support hinzugefügt\nOrientierungs-Widget für Vis-2 hinzugefügt\nDer serielle Port (und im Testmodus der UDP-Port) wird an js-controller 8 (`registerUsedResource`) gemeldet\nAuf Geräte V3 migriert\nDas serielle Gerät kann nun nach seiner stabilen USB-ID ausgewählt werden (Hersteller/Produkt/Seriennummer), auch wenn das OS den Port neu zuweist\nBesseres Widget\nUSB-Port nach Pfad und UUID wählen lassen\nGrafik für „Geräte“ -Adapter hinzugefügt\nOffset-Konfiguration für Magnetometer hinzugefügt\nIntegrationstest behoben, daher wurden die Versionen 0.1.0 — 2.1.0 nie veröffentlicht",

@@ -60,6 +60,9 @@ The devices app offers its own tile **Wit Motion** instead of the web component 
 ### **WORK IN PROGRESS**
 * (@GermanBluefox) Added the web component `<iob-witmotion-orientation>` for Aura and other hosts (`common.webComponents`)
 
+### 2.1.2 (2026-10-28)
+* (@GermanBluefox) Fixed the missing translations of the widget set, the widget name and the help in vis-2
+
 ### 2.1.1 (2026-10-14)
 * (@GermanBluefox) Added device manager support
 * (@GermanBluefox) Added an orientation widget for vis-2

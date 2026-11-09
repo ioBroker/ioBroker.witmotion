@@ -114,12 +114,13 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
         return {
             id: 'tplWitMotionOrientation',
             visSet: 'witmotion',
-            visSetLabel: 'wit_set_label',
+            // vis-2 always puts the prefix in front of the set/widget labels and the help, so no prefix here
+            visSetLabel: 'set_label',
             visSetColor: '#1976d2',
             visSetIcon: 'widgets/witmotion/img/witmotion.png',
             visName: 'WitMotionOrientation',
-            visWidgetLabel: 'wit_widget_label',
-            visHelp: 'wit_widget_help',
+            visWidgetLabel: 'widget_label',
+            visHelp: 'widget_help',
             visAttrs: [
                 {
                     name: 'common',
