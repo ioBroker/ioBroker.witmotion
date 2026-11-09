@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "witmotion",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "news": {
+      "2.2.0": {
+        "en": "Added the web component `<iob-witmotion-orientation>` for Aura and other hosts (`common.webComponents`)",
+        "de": "Webkomponente <iob-witmotion-orientation>für Aura und andere Hosts hinzugefügt (`common.WebComponents`)",
+        "ru": "Добавлен веб-компонент <iob-witmotion-orientation>`для Aura и других хостов (`Common.webcomponents`)",
+        "pt": "Adição do componente web `<iob-witmotion-orientation>` para Aura e outros hosts (`common.webComponents`)",
+        "nl": "De webcomponent `<iob-witmotion-orientation>` toegevoegd voor Aura en andere hosts (`Common.WebComponents`)",
+        "fr": "Ajout du composant Web `<iob-witmotion-orientation>` pour Aura et les autres hôtes (`common.WebComponents`)",
+        "it": "Aggiunto il componente web <iob-witmotion-orientation>per Aura e altri host (Common.WebComponents)",
+        "es": "Añadió el componente web `<iob-witmotion-orientation>` para Aura y otros hosts (`Common.WebComponents`)",
+        "pl": "Dodano komponent sieciowy `<iob-witmotion-orientation>` dla Aura i innych hostów (`common.webcomponents`)",
+        "uk": "Додано веб-компонент `<iob-witmotion-orientation>` для Aura та інших хостів (`Common.WebComponents`)",
+        "zh-cn": "为 <iob-witmotion-orientation>Aura 和其他主机添加了 Web 组件 ``(`common.webComponents`)"
+      },
       "2.1.2": {
         "en": "Fixed the missing translations of the widget set, the widget name and the help in vis-2",
         "de": "Fehlende Übersetzungen von Widget-Set, Widget-Name und Hilfe in Vis-2 behoben",

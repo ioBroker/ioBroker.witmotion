@@ -57,7 +57,7 @@ The devices app offers its own tile **Wit Motion** instead of the web component 
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.2.0 (2026-11-09)
 * (@GermanBluefox) Added the web component `<iob-witmotion-orientation>` for Aura and other hosts (`common.webComponents`)
 
 ### 2.1.2 (2026-10-28)
