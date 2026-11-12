@@ -163,7 +163,28 @@
       }
     },
     "webComponents": [
-      "webcomponents/witmotion-orientation.json"
+      {
+        "manifest": "webcomponents/witmotion-orientation.json",
+        "tag": "iob-witmotion-orientation",
+        "name": {
+          "en": "Wit Motion",
+          "de": "Wit Motion",
+          "ru": "Wit Motion",
+          "pt": "Wit Motion",
+          "nl": "Wit Motion",
+          "fr": "Wit Motion",
+          "it": "Wit Motion",
+          "es": "Wit Motion",
+          "pl": "Wit Motion",
+          "uk": "Wit Motion",
+          "zh-cn": "Wit Motion"
+        },
+        "icon": "../witmotion.png",
+        "size": {
+          "width": 300,
+          "height": 150
+        }
+      }
     ],
     "restartAdapters": [
       "devices",
