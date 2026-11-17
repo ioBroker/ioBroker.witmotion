@@ -21,6 +21,8 @@
     "wit_Primary view": "Vue principale",
     "wit_Secondary axis": "Axe secondaire",
     "wit_Secondary view": "Vue secondaire",
+    "wit_Show waves": "Afficher les vagues",
+    "wit_Show waves help": "Hauteur, dans les vues large et grande aussi longueur et fréquence, si l'instance mesure les vagues",
     "wit_Side": "Côté",
     "wit_Top": "Haut",
     "wit_Value mode": "Mode valeur",

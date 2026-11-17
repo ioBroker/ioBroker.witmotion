@@ -19,8 +19,8 @@ ioBroker adapter for WitMotion WT901blecl 5.0 (9-axis IMU sensor). Reads acceler
 
 This repo holds the adapter and four front-end folders:
 
-1. **The adapter** — backend in `src/main.ts`. The `WitMotionAdapter` class extends `@iobroker/adapter-core`'s `Adapter`. This is the runtime that talks to the sensor and writes states. `src/lib/DeviceManagement.ts` (`WitMotionDeviceManagement`, `@iobroker/dm-utils`) feeds admin's device manager: one card for the sensor, details with all enabled values, actions "test connection" and "connection settings" (writes the config → restart). Its texts are in `src/lib/i18n.ts` (all languages inline). `dm:*` messages are answered by the device manager, so the adapter's own message handler skips them.
-2. **`src-shared/`** — the orientation views (`OrientationView.tsx`, settings/helpers in `orientation.ts`), the boat/car pictures and the i18n (`wit_`-prefixed keys). Plain elements, no MUI and no hooks, so both hosts can render them with their own React.
+1. **The adapter** — backend in `src/main.ts`. The `WitMotionAdapter` class extends `@iobroker/adapter-core`'s `Adapter`. This is the runtime that talks to the sensor and writes states. `src/lib/DeviceManagement.ts` (`WitMotionDeviceManagement`, `@iobroker/dm-utils`) feeds admin's device manager: one card for the sensor (its values one per line as `customInfo` state items, because indicators wrap freely in the status line), details with all enabled values, actions "test connection" and "connection settings" (writes the config → restart). Its texts are in `src/lib/i18n.ts` (all languages inline). `dm:*` messages are answered by the device manager, so the adapter's own message handler skips them.
+2. **`src-shared/`** — the orientation views (`OrientationView.tsx`, settings/helpers in `orientation.ts`; with `showWaves` they add `waves.height`, in the wide and full views also `waves.length`/`waves.frequency`), the boat/car pictures and the i18n (`wit_`-prefixed keys). Plain elements, no MUI and no hooks, so both hosts can render them with their own React.
 3. **`src-devices/`** — the tile for ioBroker's "devices" app (`@iobroker/dm-widgets`), main component `WitMotionComponent.tsx`, built via module federation into `admin/dm-widgets/customDevices.js`. Draws only the tile frame and the dialog around the shared views.
 4. **`src-widgets/`** — the vis-2 widget set (`WitMotionOrientation.tsx`), built via module federation into `widgets/witmotion/customWidgets.js`. Registered in `io-package.json` under `common.visWidgets`.
 5. **`src-webcomponents/`** — the web component `<iob-witmotion-orientation>` (`@iobroker/web-components`) for Aura, admin and every other host, one ES module `admin/webcomponents/witmotion-orientation.js` plus its manifest `.json` (written and checked by the Vite build, listed in `common.webComponents`). Takes React from the host (`lib/esm/react-19.js`), reuses `Compass`/`ObjectIcon` of `src-shared` and lays the views out with container queries; the pictures go to `admin/webcomponents/img/`. Its `name` is the label of the devices tile, so devices hides it next to its own tile.
@@ -30,6 +30,8 @@ The front-end folders have their own `package.json`/`node_modules`; `src-shared`
 ### Data Flow
 
 Serial port (or UDP in test mode) → byte stream → accumulate 20-byte packets (header `0x55 0x61` + 18 data bytes) → `processData()` decodes acceleration/gyroscope/angle → for angle values, the configured `magnetometerOffset{X,Y,Z}` is added → `setStateIfChangedAsync()` applies change detection, minimum update interval, sliding average calculation, and optional 0-360° transformation (negative values + 360) → ioBroker states.
+
+If `waves` is enabled, every decoded packet (raw angles, before the offset, and before any throttling) also goes into `HeaveRecorder` (`src/lib/waves.ts`): vertical acceleration via roll/pitch (Z-Y-X convention, `verticalAcceleration()`), kept for `wavesWindow` s. Every `wavesUpdate` s `analyzeHeave()` integrates it twice in the frequency domain (own radix-2 FFT, band `wavesMinPeriod`…`wavesMaxPeriod`, tapered ends cut off) and writes `waves.height` (Hs = 4σ), `waves.heightMax`, `waves.period` (zero-up-crossing), `waves.periodPeak`, `waves.frequency` (1/Tp) and `waves.length` (deep water, g·Tp²/2π). Below `CALM_HEIGHT` (5 cm Hs) periods, length and frequency are 0. The record is taken as equally spaced at its mean rate; a gap > 2 s starts a new one. Above 20 Hz it is averaged down to ~10 Hz.
 
 Each axis is gated by a config flag (`accelerometer` / `gyroscope` / `magnetometer`); only enabled groups are written. `setStateIfChangedAsync()` skips unchanged values unless the last write is older than 60s (heartbeat), then further throttles by the per-group `*Update` min interval, and maintains a sliding window (`*AverageInterval`) for the `*Avg` states.
 
@@ -48,6 +50,7 @@ Each enabled sensor creates a channel with X/Y/Z values and their averages:
 - `acceleration.{x,y,z}` / `acceleration.{x,y,z}Avg` (unit: g)
 - `gyroscope.{x,y,z}` / `gyroscope.{x,y,z}Avg` (unit: °/s)
 - `angle.{x,y,z}` / `angle.{x,y,z}Avg` (unit: °)
+- `waves.{height,heightMax,length}` (unit: m) / `waves.{period,periodPeak}` (unit: s) / `waves.frequency` (unit: Hz), created by `syncWaveObjects()` when `waves` is enabled
 
 Naming quirk: the **`angle`** channel is the **magnetometer** — its states are labeled "Magnetometer …" and it is gated by the `magnetometer` config flag (and `magnetometer360{x,y,z}` / `magnetometerOffset{X,Y,Z}`), not an `angle` flag.
 
@@ -57,7 +60,7 @@ Defined in `src/types.d.ts` as `WitMotionAdapterConfig`. Admin UI schema in `adm
 
 ## Testing
 
-Integration tests (`test/adapter.test.js`) use `@iobroker/legacy-testing` to start a js-controller instance, then send mock sensor packets via UDP to the adapter running in test mode. Test data is in `test/data.json` (hex-encoded 20-byte packets).
+Unit tests (`npm run test:unit`, `test/waves.test.js`) check the wave analysis with synthetic heave records; they load `build/lib/waves.js`, so build first. Integration tests (`test/adapter.test.js`) use `@iobroker/legacy-testing` to start a js-controller instance, then send mock sensor packets via UDP to the adapter running in test mode. Test data is in `test/data.json` (hex-encoded 20-byte packets).
 
 ## ESLint
 

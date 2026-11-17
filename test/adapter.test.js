@@ -65,6 +65,12 @@ describe.only('witmotion: Test parser', () => {
             config.common.enabled = true;
             config.common.loglevel = 'debug';
             config.native.test = true;
+            // short window, so the wave test is done in half a minute
+            config.native.waves = true;
+            config.native.wavesWindow = 40;
+            config.native.wavesUpdate = 5;
+            config.native.wavesMinPeriod = 1;
+            config.native.wavesMaxPeriod = 5;
 
             await setup.setAdapterConfig(config.common, config.native);
 
@@ -100,6 +106,57 @@ describe.only('witmotion: Test parser', () => {
             throw new Error(`State witmotion.0.angle.y expected to be "0.5548095703125" but found ${state.val}`);
         }
     }).timeout(5000);
+
+    it('witmotion: It must measure waves', async () => {
+        clearInterval(interval);
+        interval = null;
+
+        // 10 packets per second of a heave of 1 m (trough to crest) and 3 s, sensor level
+        const amplitude = 0.5;
+        const omega = (2 * Math.PI) / 3;
+        const int16 = value => {
+            const raw = Math.round(value) & 0xffff;
+            return [raw & 0xff, raw >> 8];
+        };
+        const sock = createSocket('udp4');
+        // The timers do not keep 100 ms exactly (on Windows rather 110 ms), so the wave follows the real time
+        const start = Date.now();
+        const sender = setInterval(() => {
+            const t = (Date.now() - start) / 1000;
+            const az = 1 - (amplitude * omega * omega * Math.sin(omega * t)) / 9.80665;
+            const packet = Buffer.from([
+                0x55,
+                0x61,
+                ...int16(0),
+                ...int16(0),
+                ...int16((az / 16) * 32768),
+                ...new Array(12).fill(0),
+            ]);
+            sock.send(packet, 50547, '127.0.0.1');
+        }, 100);
+
+        try {
+            // the first values come after half of the window (20 s) at the next update (every 5 s)
+            let height = null;
+            for (let attempt = 0; attempt < 40 && height === null; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const state = await states.getStateAsync('witmotion.0.waves.height');
+                height = state?.val ?? null;
+            }
+            const period = (await states.getStateAsync('witmotion.0.waves.period'))?.val;
+            console.log(`Waves: Hs ${height} m, Tz ${period} s`);
+            const expected = 4 * (amplitude / Math.SQRT2);
+            if (height === null || Math.abs(height - expected) > 0.15 * expected) {
+                throw new Error(`State witmotion.0.waves.height expected to be about ${expected} but found ${height}`);
+            }
+            if (!period || Math.abs(period - 3) > 0.3) {
+                throw new Error(`State witmotion.0.waves.period expected to be about 3 but found ${period}`);
+            }
+        } finally {
+            clearInterval(sender);
+            sock.close();
+        }
+    }).timeout(60000);
 
 
     after('witmotion Server: Stop js-controller', function (_done) {

@@ -24,5 +24,16 @@ export interface WitMotionAdapterConfig {
     magnetometerOffsetY: number | string;
     magnetometerOffsetZ: number | string;
 
+    /** Wave statistics from the heave of the sensor (`waves.*` states) */
+    waves: boolean;
+    /** How often the wave states are written, s */
+    wavesUpdate: number | string;
+    /** Length of the analysed record, s */
+    wavesWindow: number | string;
+    /** Shortest wave period that is counted, s */
+    wavesMinPeriod: number | string;
+    /** Longest wave period that is counted, s */
+    wavesMaxPeriod: number | string;
+
     test?: boolean;
 }

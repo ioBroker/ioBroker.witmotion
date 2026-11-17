@@ -1,6 +1,6 @@
 /**
  * Views of the WitMotion orientation: a boat or car (or a custom picture) rotated by the measured angle,
- * a compass for the top view and the values.
+ * a compass for the top view and the values, with the significant wave height if the instance measures it.
  *
  * Shared by the tile of the devices app and the vis-2 widget. They use plain elements and no hooks, so it
  * does not matter which copy of React renders them, and they take all colors from their parent: the
@@ -15,7 +15,16 @@ import carTopPng from './assets/car_top.png';
 import carSidePng from './assets/car_side.png';
 import carBackPng from './assets/back_back.png';
 
-import { formatAngle, type AxisType, type OrientationSettings, type OrientationValues, type ViewType } from './orientation';
+import {
+    formatAngle,
+    formatWaveFrequency,
+    formatWaveHeight,
+    formatWaveLength,
+    type AxisType,
+    type OrientationSettings,
+    type OrientationValues,
+    type ViewType,
+} from './orientation';
 
 const OBJECT_IMAGES: Record<string, Record<ViewType, string>> = {
     boat: { top: boatTopPng, side: boatSidePng, back: boatBackPng },
@@ -37,6 +46,10 @@ const NORTH = '#f44336';
 const SECONDARY_OPACITY = 0.7;
 const DISABLED_OPACITY = 0.38;
 
+/** Two wavy bands, the icon of the wave height */
+const WAVES_PATH =
+    'M2 8c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v2c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2zm0 7c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v2c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2z';
+
 export interface OrientationViewProps {
     settings: OrientationSettings;
     values: OrientationValues;
@@ -45,6 +58,43 @@ export interface OrientationViewProps {
     /** Color of the values. Inherited if not set */
     accent?: string;
     isFloatComma?: boolean;
+}
+
+/** What the views show of the waves */
+export interface ShownWaves {
+    height: number;
+    /** null in calm water: the noise of the sensor has no length */
+    length: number | null;
+    /** null in calm water */
+    frequency: number | null;
+}
+
+/** The waves to show: null if they are switched off or the instance does not measure them */
+export function getShownWaves(settings: OrientationSettings, values: OrientationValues): ShownWaves | null {
+    if (settings.showWaves === false || typeof values.waveHeight !== 'number') {
+        return null;
+    }
+    const positive = (val: number | null | undefined): number | null => (val && val > 0 ? val : null);
+    return {
+        height: values.waveHeight,
+        length: positive(values.waveLength),
+        frequency: positive(values.waveFrequency),
+    };
+}
+
+/** The icon of the wave height, in the color of the water. Sized by its parent if no style is given */
+export function WaveIcon(props: { style?: React.CSSProperties }): React.JSX.Element {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            style={props.style}
+        >
+            <path
+                fill={WATER}
+                d={WAVES_PATH}
+            />
+        </svg>
+    );
 }
 
 function rotation(angle: number): React.CSSProperties {
@@ -328,6 +378,48 @@ function Value(props: {
     );
 }
 
+/** The icon and the significant wave height; `detailed` adds the length (λ) and the frequency of the waves */
+function Waves(props: {
+    waves: ShownWaves;
+    detailed?: boolean;
+    fontSize: number;
+    accent?: string;
+    isFloatComma?: boolean;
+}): React.JSX.Element {
+    const { waves, detailed } = props;
+    const detail: React.CSSProperties = { fontWeight: 600, marginLeft: props.fontSize * 0.5 };
+    return (
+        <div
+            style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                columnGap: props.fontSize * 0.3,
+                rowGap: 2,
+                fontSize: props.fontSize,
+                lineHeight: 1.2,
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                minWidth: 0,
+            }}
+        >
+            <WaveIcon style={{ width: '1.1em', height: '1.1em', flexShrink: 0, display: 'block' }} />
+            <span style={{ fontWeight: 700, color: props.accent }}>
+                {formatWaveHeight(waves.height, props.isFloatComma)}
+            </span>
+            {detailed && waves.length !== null ? (
+                <span style={detail}>
+                    <span style={{ opacity: SECONDARY_OPACITY, fontWeight: 500 }}>λ </span>
+                    {formatWaveLength(waves.length, props.isFloatComma)}
+                </span>
+            ) : null}
+            {detailed && waves.frequency !== null ? (
+                <span style={detail}>{formatWaveFrequency(waves.frequency, props.isFloatComma)}</span>
+            ) : null}
+        </div>
+    );
+}
+
 function Name(props: { name?: string; fontSize: number; style?: React.CSSProperties }): React.JSX.Element | null {
     if (!props.name) {
         return null;
@@ -342,11 +434,58 @@ function Name(props: { name?: string; fontSize: number; style?: React.CSSPropert
                 whiteSpace: 'nowrap',
                 textOverflow: 'ellipsis',
                 maxWidth: '100%',
+                minWidth: 0,
                 textAlign: 'center',
                 ...props.style,
             }}
         >
             {props.name}
+        </div>
+    );
+}
+
+/** The name and the waves in one line, so the waves need no line of their own */
+function Footer(props: {
+    name?: string;
+    waves: ShownWaves | null;
+    detailed?: boolean;
+    fontSize: number;
+    accent?: string;
+    isFloatComma?: boolean;
+    align?: 'left' | 'center';
+}): React.JSX.Element | null {
+    if (props.waves === null) {
+        return (
+            <Name
+                name={props.name}
+                fontSize={props.fontSize}
+                style={props.align === 'left' ? { textAlign: 'left' } : undefined}
+            />
+        );
+    }
+    return (
+        <div
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: props.align === 'left' ? 'flex-start' : 'center',
+                gap: props.fontSize * 0.75,
+                maxWidth: '100%',
+                minWidth: 0,
+            }}
+        >
+            <Name
+                name={props.name}
+                fontSize={props.fontSize}
+                style={{ flexShrink: 1, textAlign: 'left' }}
+            />
+            <Waves
+                waves={props.waves}
+                detailed={props.detailed}
+                fontSize={props.fontSize}
+                accent={props.accent}
+                isFloatComma={props.isFloatComma}
+            />
         </div>
     );
 }
@@ -425,9 +564,12 @@ export function OrientationCompactView(props: OrientationViewProps & { size?: nu
                 accent={props.accent}
                 isFloatComma={props.isFloatComma}
             />
-            <Name
+            <Footer
                 name={props.name}
+                waves={getShownWaves(props.settings, props.values)}
                 fontSize={14}
+                accent={props.accent}
+                isFloatComma={props.isFloatComma}
             />
         </div>
     );
@@ -437,6 +579,7 @@ export function OrientationCompactView(props: OrientationViewProps & { size?: nu
 export function OrientationBarView(props: OrientationViewProps & { fontSize?: number }): React.JSX.Element {
     const fontSize = props.fontSize || 28;
     const s = props.settings;
+    const waves = getShownWaves(s, props.values);
     return (
         <div
             style={{
@@ -469,6 +612,14 @@ export function OrientationBarView(props: OrientationViewProps & { fontSize?: nu
                     isFloatComma={props.isFloatComma}
                 />
             ) : null}
+            {waves !== null ? (
+                <Waves
+                    waves={waves}
+                    fontSize={Math.round(fontSize * 0.75)}
+                    accent={props.accent}
+                    isFloatComma={props.isFloatComma}
+                />
+            ) : null}
         </div>
     );
 }
@@ -479,6 +630,7 @@ export function OrientationBarView(props: OrientationViewProps & { fontSize?: nu
  */
 export function OrientationWideView(props: OrientationViewProps & { size?: number }): React.JSX.Element {
     const s = props.settings;
+    const waves = getShownWaves(s, props.values);
     if (!s.axis2) {
         const size = props.size || 90;
         return (
@@ -508,6 +660,15 @@ export function OrientationWideView(props: OrientationViewProps & { size?: numbe
                         accent={props.accent}
                         isFloatComma={props.isFloatComma}
                     />
+                    {waves !== null ? (
+                        <Waves
+                            waves={waves}
+                            detailed
+                            fontSize={14}
+                            accent={props.accent}
+                            isFloatComma={props.isFloatComma}
+                        />
+                    ) : null}
                     <Name
                         name={props.name}
                         fontSize={14}
@@ -552,9 +713,13 @@ export function OrientationWideView(props: OrientationViewProps & { size?: numbe
                     isFloatComma={props.isFloatComma}
                 />
             </div>
-            <Name
+            <Footer
                 name={props.name}
+                waves={waves}
+                detailed
                 fontSize={12}
+                accent={props.accent}
+                isFloatComma={props.isFloatComma}
             />
         </div>
     );
@@ -571,6 +736,7 @@ export function getFullViewSize(settings: OrientationSettings, width: number, he
 export function OrientationFullView(props: OrientationViewProps & { size: number }): React.JSX.Element {
     const s = props.settings;
     const fontSize = Math.round(props.size * (s.axis2 ? 0.2 : 0.22));
+    const waves = getShownWaves(s, props.values);
     return (
         <div
             style={{
@@ -606,6 +772,15 @@ export function OrientationFullView(props: OrientationViewProps & { size: number
                     />
                 ) : null}
             </div>
+            {waves !== null ? (
+                <Waves
+                    waves={waves}
+                    detailed
+                    fontSize={Math.round(fontSize * 0.5)}
+                    accent={props.accent}
+                    isFloatComma={props.isFloatComma}
+                />
+            ) : null}
             <Name
                 name={props.name}
                 fontSize={20}

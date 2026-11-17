@@ -20,5 +20,12 @@
     "USB device": "Urządzenie USB",
     "Identified by vendor and product ID, so the OS may reassign the port name": "Identyfikowane na podstawie identyfikatora producenta i produktu, dzięki czemu system może zmienić nazwę portu",
     "Main settings": "Ustawienia główne",
-    "Device manager": "Menedżer urządzeń"
+    "Device manager": "Menedżer urządzeń",
+    "Waves": "Fale",
+    "Wave height and period from the vertical motion of the sensor. Mount the sensor near the middle of the boat.": "Wysokość i okres fal na podstawie ruchu pionowego czujnika. Zamontuj czujnik blisko środka łodzi.",
+    "Update interval": "Interwał aktualizacji",
+    "Analysis window": "Okno analizy",
+    "A longer window gives steadier values, a shorter one follows changes faster": "Dłuższe okno daje stabilniejsze wartości, krótsze szybciej śledzi zmiany",
+    "Shortest wave period": "Najkrótszy okres fali",
+    "Longest wave period": "Najdłuższy okres fali"
 }

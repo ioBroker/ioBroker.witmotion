@@ -11,8 +11,15 @@ function svgIcon(path) {
     return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
 }
 const ICON_SENSOR = svgIcon('M6 4h12v1h3v2h-3v2h3v2h-3v2h3v2h-3v2h3v2h-3v1H6v-1H3v-2h3v-2H3v-2h3v-2H3V9h3V7H3V5h3zm5 11v3h1v-3zm2 0v3h1v-3zm2 0v3h1v-3z');
-const ICON_ANGLE = svgIcon('M20 19H4.09L14.18 4.43l1.64 1.14-4.54 6.56A4.5 4.5 0 0 1 14 16.54c0 .16 0 .31-.03.46H20zM7.91 17h4.05c.04-.15.04-.3.04-.46 0-1.26-.76-2.32-1.86-2.76z');
-const ICON_COMPASS = svgIcon('M7 17l3.2-6.8L17 7l-3.2 6.8zm5-5.9a.9.9 0 1 0 0 1.8.9.9 0 0 0 0-1.8M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16');
+/** The wave states and their unit */
+const WAVES = [
+    { id: 'height', label: 'Significant wave height', unit: 'm' },
+    { id: 'heightMax', label: 'Highest wave', unit: 'm' },
+    { id: 'period', label: 'Mean wave period', unit: 's' },
+    { id: 'periodPeak', label: 'Peak wave period', unit: 's' },
+    { id: 'length', label: 'Wave length', unit: 'm' },
+    { id: 'frequency', label: 'Wave frequency', unit: 'Hz' },
+];
 /** The measured channels: the config flag that enables them, their heading and unit */
 const CHANNELS = [
     { channel: 'angle', flag: 'magnetometer', title: 'Magnetometer', unit: '°' },
@@ -55,21 +62,41 @@ class WitMotionDeviceManagement extends dm_utils_1.DeviceManagement {
     }
     // ---------------------------------------------------------------------------------------------
     // Card
-    getIndicators() {
-        if (!this.adapter.config.magnetometer) {
-            return [];
+    /**
+     * One value of the card in a line of its own: the label on the left, the value on the right. Without
+     * `labelIcon`: json-config draws it as a 28 px box on the baseline of the label, which then sits lower than
+     * the value.
+     */
+    cardItem(relId, label, unit, digits) {
+        return {
+            type: 'state',
+            oid: this.full(relId),
+            foreign: true,
+            label,
+            unit,
+            digits,
+            size: 14,
+            xs: 12,
+        };
+    }
+    /**
+     * The values on the card, one per line: the angles and the wave height. They are no indicators, as those
+     * flow in one line with the connection and wrap wherever the width ends.
+     */
+    getCardValues() {
+        const config = this.adapter.config;
+        const items = {};
+        if (config.magnetometer) {
+            for (const { axis, label } of AXES) {
+                items[`angle_${axis}`] = this.cardItem(`angle.${axis}`, (0, i18n_1.t)(label), '°', 1);
+            }
         }
-        return AXES.map(({ axis, label }, i) => ({
-            id: `angle_${axis}`,
-            value: { stateId: this.full(`angle.${axis}`) },
-            icon: axis === 'z' ? ICON_COMPASS : ICON_ANGLE,
-            color: 'info',
-            showValue: true,
-            unit: '°',
-            tooltip: (0, i18n_1.t)(label),
-            configurable: true,
-            order: 10 * (i + 1),
-        }));
+        if (config.waves) {
+            items.waves_height = this.cardItem('waves.height', (0, i18n_1.t)('Wave height'), 'm', 2);
+            items.waves_length = this.cardItem('waves.length', (0, i18n_1.t)('Wave length'), 'm', 1);
+            items.waves_frequency = this.cardItem('waves.frequency', (0, i18n_1.t)('Wave frequency'), 'Hz', 2);
+        }
+        return Object.keys(items).length ? { id: SENSOR_ID, schema: { type: 'panel', items } } : undefined;
     }
     getSensorInfo() {
         const configured = this.isPortConfigured();
@@ -88,7 +115,7 @@ class WitMotionDeviceManagement extends dm_utils_1.DeviceManagement {
                 },
                 warning: configured ? undefined : (0, i18n_1.t)('No serial port configured'),
             },
-            indicators: this.getIndicators(),
+            customInfo: this.getCardValues(),
             hasDetails: true,
             actions: [
                 {
@@ -151,6 +178,13 @@ class WitMotionDeviceManagement extends dm_utils_1.DeviceManagement {
             }
             for (const { axis, label } of AXES) {
                 items[`${channel}_${axis}Avg`] = this.stateItem(`${channel}.${axis}Avg`, (0, i18n_1.tWith)(label, ' Ø'), unit);
+            }
+        }
+        if (config.waves) {
+            anyEnabled = true;
+            items._waves = this.header((0, i18n_1.t)('Waves'));
+            for (const { id, label, unit } of WAVES) {
+                items[`waves_${id}`] = this.stateItem(`waves.${id}`, (0, i18n_1.t)(label), unit);
             }
         }
         if (!anyEnabled) {

@@ -21,6 +21,8 @@
     "wit_Primary view": "Основной вид",
     "wit_Secondary axis": "Вторая ось",
     "wit_Secondary view": "Второй вид",
+    "wit_Show waves": "Показывать волны",
+    "wit_Show waves help": "Высота, в широком и большом виде также длина и частота, если экземпляр измеряет волны",
     "wit_Side": "Сбоку",
     "wit_Top": "Сверху",
     "wit_Value mode": "Режим значения",

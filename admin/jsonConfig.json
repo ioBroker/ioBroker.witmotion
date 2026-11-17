@@ -333,6 +333,92 @@
                     "lg": 2,
                     "xl": 2,
                     "hidden": "!data.magnetometer"
+                },
+                "_headerWaves": {
+                    "type": "header",
+                    "text": "Waves",
+                    "size": 4,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_wavesInfo": {
+                    "type": "staticText",
+                    "text": "Wave height and period from the vertical motion of the sensor. Mount the sensor near the middle of the boat.",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "waves": {
+                    "label": "Enabled",
+                    "type": "checkbox",
+                    "default": false,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "wavesUpdate": {
+                    "label": "Update interval",
+                    "help": "s",
+                    "type": "number",
+                    "min": 5,
+                    "default": 30,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
+                    "hidden": "!data.waves"
+                },
+                "wavesWindow": {
+                    "label": "Analysis window",
+                    "tooltip": "A longer window gives steadier values, a shorter one follows changes faster",
+                    "help": "s",
+                    "type": "number",
+                    "min": 60,
+                    "default": 300,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
+                    "hidden": "!data.waves"
+                },
+                "wavesMinPeriod": {
+                    "newLine": true,
+                    "label": "Shortest wave period",
+                    "help": "s",
+                    "type": "number",
+                    "min": 0.5,
+                    "default": 2,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
+                    "hidden": "!data.waves"
+                },
+                "wavesMaxPeriod": {
+                    "label": "Longest wave period",
+                    "help": "s",
+                    "type": "number",
+                    "min": 5,
+                    "default": 20,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 4,
+                    "lg": 2,
+                    "xl": 2,
+                    "hidden": "!data.waves"
                 }
             }
         },
