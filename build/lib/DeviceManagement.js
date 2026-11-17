@@ -13,6 +13,14 @@ function svgIcon(path) {
 const ICON_SENSOR = svgIcon('M6 4h12v1h3v2h-3v2h3v2h-3v2h3v2h-3v2h3v2h-3v1H6v-1H3v-2h3v-2H3v-2h3v-2H3V9h3V7H3V5h3zm5 11v3h1v-3zm2 0v3h1v-3zm2 0v3h1v-3z');
 const ICON_ANGLE = svgIcon('M20 19H4.09L14.18 4.43l1.64 1.14-4.54 6.56A4.5 4.5 0 0 1 14 16.54c0 .16 0 .31-.03.46H20zM7.91 17h4.05c.04-.15.04-.3.04-.46 0-1.26-.76-2.32-1.86-2.76z');
 const ICON_COMPASS = svgIcon('M7 17l3.2-6.8L17 7l-3.2 6.8zm5-5.9a.9.9 0 1 0 0 1.8.9.9 0 0 0 0-1.8M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16');
+const ICON_WAVES = svgIcon('M2 8c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v2c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2zm0 7c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v2c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2z');
+/** The wave states and their unit */
+const WAVES = [
+    { id: 'height', label: 'Significant wave height', unit: 'm' },
+    { id: 'heightMax', label: 'Highest wave', unit: 'm' },
+    { id: 'period', label: 'Mean wave period', unit: 's' },
+    { id: 'periodPeak', label: 'Peak wave period', unit: 's' },
+];
 /** The measured channels: the config flag that enables them, their heading and unit */
 const CHANNELS = [
     { channel: 'angle', flag: 'magnetometer', title: 'Magnetometer', unit: '°' },
@@ -56,20 +64,34 @@ class WitMotionDeviceManagement extends dm_utils_1.DeviceManagement {
     // ---------------------------------------------------------------------------------------------
     // Card
     getIndicators() {
-        if (!this.adapter.config.magnetometer) {
-            return [];
+        const indicators = [];
+        if (this.adapter.config.magnetometer) {
+            AXES.forEach(({ axis, label }, i) => indicators.push({
+                id: `angle_${axis}`,
+                value: { stateId: this.full(`angle.${axis}`) },
+                icon: axis === 'z' ? ICON_COMPASS : ICON_ANGLE,
+                color: 'info',
+                showValue: true,
+                unit: '°',
+                tooltip: (0, i18n_1.t)(label),
+                configurable: true,
+                order: 10 * (i + 1),
+            }));
         }
-        return AXES.map(({ axis, label }, i) => ({
-            id: `angle_${axis}`,
-            value: { stateId: this.full(`angle.${axis}`) },
-            icon: axis === 'z' ? ICON_COMPASS : ICON_ANGLE,
-            color: 'info',
-            showValue: true,
-            unit: '°',
-            tooltip: (0, i18n_1.t)(label),
-            configurable: true,
-            order: 10 * (i + 1),
-        }));
+        if (this.adapter.config.waves) {
+            indicators.push({
+                id: 'waves_height',
+                value: { stateId: this.full('waves.height') },
+                icon: ICON_WAVES,
+                color: 'info',
+                showValue: true,
+                unit: 'm',
+                tooltip: (0, i18n_1.t)('Significant wave height'),
+                configurable: true,
+                order: 40,
+            });
+        }
+        return indicators;
     }
     getSensorInfo() {
         const configured = this.isPortConfigured();
@@ -151,6 +173,13 @@ class WitMotionDeviceManagement extends dm_utils_1.DeviceManagement {
             }
             for (const { axis, label } of AXES) {
                 items[`${channel}_${axis}Avg`] = this.stateItem(`${channel}.${axis}Avg`, (0, i18n_1.tWith)(label, ' Ø'), unit);
+            }
+        }
+        if (config.waves) {
+            anyEnabled = true;
+            items._waves = this.header((0, i18n_1.t)('Waves'));
+            for (const { id, label, unit } of WAVES) {
+                items[`waves_${id}`] = this.stateItem(`waves.${id}`, (0, i18n_1.t)(label), unit);
             }
         }
         if (!anyEnabled) {

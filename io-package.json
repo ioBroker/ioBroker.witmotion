@@ -207,7 +207,12 @@
     "magnetometerAverageInterval": 5000,
     "magnetometer360x": false,
     "magnetometer360y": false,
-    "magnetometer360z": true
+    "magnetometer360z": true,
+    "waves": false,
+    "wavesUpdate": 30,
+    "wavesWindow": 300,
+    "wavesMinPeriod": 2,
+    "wavesMaxPeriod": 20
   },
   "objects": [],
   "instanceObjects": [

@@ -54,6 +54,18 @@ const ICON_COMPASS = svgIcon(
     'M7 17l3.2-6.8L17 7l-3.2 6.8zm5-5.9a.9.9 0 1 0 0 1.8.9.9 0 0 0 0-1.8M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20m0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16',
 );
 
+const ICON_WAVES = svgIcon(
+    'M2 8c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v2c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2zm0 7c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2v2c-2.5 0-2.5-2-5-2s-2.5 2-5 2-2.5-2-5-2-2.5 2-5 2z',
+);
+
+/** The wave states and their unit */
+const WAVES: { id: string; label: WordKey; unit: string }[] = [
+    { id: 'height', label: 'Significant wave height', unit: 'm' },
+    { id: 'heightMax', label: 'Highest wave', unit: 'm' },
+    { id: 'period', label: 'Mean wave period', unit: 's' },
+    { id: 'periodPeak', label: 'Peak wave period', unit: 's' },
+];
+
 /** The measured channels: the config flag that enables them, their heading and unit */
 const CHANNELS: {
     channel: string;
@@ -111,20 +123,36 @@ export class WitMotionDeviceManagement extends DeviceManagement<WitMotionAdapter
     // Card
 
     private getIndicators(): StatusIndicator[] {
-        if (!this.adapter.config.magnetometer) {
-            return [];
+        const indicators: StatusIndicator[] = [];
+        if (this.adapter.config.magnetometer) {
+            AXES.forEach(({ axis, label }, i) =>
+                indicators.push({
+                    id: `angle_${axis}`,
+                    value: { stateId: this.full(`angle.${axis}`) },
+                    icon: axis === 'z' ? ICON_COMPASS : ICON_ANGLE,
+                    color: 'info',
+                    showValue: true,
+                    unit: '°',
+                    tooltip: t(label),
+                    configurable: true,
+                    order: 10 * (i + 1),
+                }),
+            );
         }
-        return AXES.map(({ axis, label }, i) => ({
-            id: `angle_${axis}`,
-            value: { stateId: this.full(`angle.${axis}`) },
-            icon: axis === 'z' ? ICON_COMPASS : ICON_ANGLE,
-            color: 'info',
-            showValue: true,
-            unit: '°',
-            tooltip: t(label),
-            configurable: true,
-            order: 10 * (i + 1),
-        }));
+        if (this.adapter.config.waves) {
+            indicators.push({
+                id: 'waves_height',
+                value: { stateId: this.full('waves.height') },
+                icon: ICON_WAVES,
+                color: 'info',
+                showValue: true,
+                unit: 'm',
+                tooltip: t('Significant wave height'),
+                configurable: true,
+                order: 40,
+            });
+        }
+        return indicators;
     }
 
     private getSensorInfo(): DeviceInfo<string> {
@@ -215,6 +243,13 @@ export class WitMotionDeviceManagement extends DeviceManagement<WitMotionAdapter
             }
             for (const { axis, label } of AXES) {
                 items[`${channel}_${axis}Avg`] = this.stateItem(`${channel}.${axis}Avg`, tWith(label, ' Ø'), unit);
+            }
+        }
+        if (config.waves) {
+            anyEnabled = true;
+            items._waves = this.header(t('Waves'));
+            for (const { id, label, unit } of WAVES) {
+                items[`waves_${id}`] = this.stateItem(`waves.${id}`, t(label), unit);
             }
         }
         if (!anyEnabled) {

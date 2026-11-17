@@ -20,5 +20,12 @@
     "USB device": "USB 设备",
     "Identified by vendor and product ID, so the OS may reassign the port name": "通过供应商和产品 ID 识别，因此操作系统可以重新分配端口名称",
     "Main settings": "主要设置",
-    "Device manager": "设备管理器"
+    "Device manager": "设备管理器",
+    "Waves": "波浪",
+    "Wave height and period from the vertical motion of the sensor. Mount the sensor near the middle of the boat.": "根据传感器的垂直运动计算波高和波周期。请将传感器安装在靠近船中部的位置。",
+    "Update interval": "更新间隔",
+    "Analysis window": "分析窗口",
+    "A longer window gives steadier values, a shorter one follows changes faster": "窗口越长数值越稳定，越短则越快跟随变化",
+    "Shortest wave period": "最短波周期",
+    "Longest wave period": "最长波周期"
 }

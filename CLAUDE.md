@@ -31,6 +31,8 @@ The front-end folders have their own `package.json`/`node_modules`; `src-shared`
 
 Serial port (or UDP in test mode) → byte stream → accumulate 20-byte packets (header `0x55 0x61` + 18 data bytes) → `processData()` decodes acceleration/gyroscope/angle → for angle values, the configured `magnetometerOffset{X,Y,Z}` is added → `setStateIfChangedAsync()` applies change detection, minimum update interval, sliding average calculation, and optional 0-360° transformation (negative values + 360) → ioBroker states.
 
+If `waves` is enabled, every decoded packet (raw angles, before the offset, and before any throttling) also goes into `HeaveRecorder` (`src/lib/waves.ts`): vertical acceleration via roll/pitch (Z-Y-X convention, `verticalAcceleration()`), kept for `wavesWindow` s. Every `wavesUpdate` s `analyzeHeave()` integrates it twice in the frequency domain (own radix-2 FFT, band `wavesMinPeriod`…`wavesMaxPeriod`, tapered ends cut off) and writes `waves.height` (Hs = 4σ), `waves.heightMax`, `waves.period` (zero-up-crossing) and `waves.periodPeak`. The record is taken as equally spaced at its mean rate; a gap > 2 s starts a new one. Above 20 Hz it is averaged down to ~10 Hz.
+
 Each axis is gated by a config flag (`accelerometer` / `gyroscope` / `magnetometer`); only enabled groups are written. `setStateIfChangedAsync()` skips unchanged values unless the last write is older than 60s (heartbeat), then further throttles by the per-group `*Update` min interval, and maintains a sliding window (`*AverageInterval`) for the `*Avg` states.
 
 ### Key Methods
@@ -48,6 +50,7 @@ Each enabled sensor creates a channel with X/Y/Z values and their averages:
 - `acceleration.{x,y,z}` / `acceleration.{x,y,z}Avg` (unit: g)
 - `gyroscope.{x,y,z}` / `gyroscope.{x,y,z}Avg` (unit: °/s)
 - `angle.{x,y,z}` / `angle.{x,y,z}Avg` (unit: °)
+- `waves.{height,heightMax}` (unit: m) / `waves.{period,periodPeak}` (unit: s), created by `syncWaveObjects()` when `waves` is enabled
 
 Naming quirk: the **`angle`** channel is the **magnetometer** — its states are labeled "Magnetometer …" and it is gated by the `magnetometer` config flag (and `magnetometer360{x,y,z}` / `magnetometerOffset{X,Y,Z}`), not an `angle` flag.
 
@@ -57,7 +60,7 @@ Defined in `src/types.d.ts` as `WitMotionAdapterConfig`. Admin UI schema in `adm
 
 ## Testing
 
-Integration tests (`test/adapter.test.js`) use `@iobroker/legacy-testing` to start a js-controller instance, then send mock sensor packets via UDP to the adapter running in test mode. Test data is in `test/data.json` (hex-encoded 20-byte packets).
+Unit tests (`npm run test:unit`, `test/waves.test.js`) check the wave analysis with synthetic heave records; they load `build/lib/waves.js`, so build first. Integration tests (`test/adapter.test.js`) use `@iobroker/legacy-testing` to start a js-controller instance, then send mock sensor packets via UDP to the adapter running in test mode. Test data is in `test/data.json` (hex-encoded 20-byte packets).
 
 ## ESLint
 

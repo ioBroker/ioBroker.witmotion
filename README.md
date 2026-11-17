@@ -20,8 +20,30 @@ The following data are read and written to ioBroker:
 - Gyroscope X/Y/Z
 - Magnetometer X/Y/Z
 
+Optionally the adapter calculates the wave height and period from the vertical motion of the sensor (see [Waves](#waves)).
+
 ## Supported devices
 - [WT901blecl 5.0](https://witmotion-sensor.com/products/bluetooth-5-0-accelerometer-inclinometer-wt901blecl-mpu9250-9-axis-imu-sensor)
+
+## Waves
+With **Waves** enabled in the settings, the adapter measures the sea state from the heave of the sensor, the way a wave buoy does. It uses every packet of the sensor (independent of the update intervals of the other states): the acceleration is turned into the vertical with the roll and pitch of the sensor, integrated twice in the frequency domain within the band of the wave periods, and the resulting heave is evaluated:
+
+| State                  | Unit | Meaning                                                                       |
+|------------------------|------|-------------------------------------------------------------------------------|
+| `waves.height`         | m    | Significant wave height Hs = 4·σ of the heave (about the mean of the highest third of the waves) |
+| `waves.heightMax`      | m    | Highest single wave (trough to crest) in the analysis window                  |
+| `waves.period`         | s    | Mean period by zero-up-crossing                                               |
+| `waves.periodPeak`     | s    | Period of the spectral peak, the period with the most energy                  |
+
+Settings: **Update interval** (how often the states are written, default 30 s), **Analysis window** (length of the analysed record, default 300 s; the first values come after half of it), **Shortest** and **Longest wave period** (the band, default 2–20 s).
+
+Things to know:
+- Mount the sensor near the middle of the boat. Far from it, the pitch of the boat adds vertical motion that is not the sea.
+- The values are the motion of the boat. Waves that are short compared to the hull (on a 13 m yacht roughly below 3–4 s) lift the boat less than they are high, so a short wind sea is underestimated.
+- While the boat moves, the periods are encounter periods: shorter when heading into the waves, longer when running with them. The heights do not depend on this.
+- The angles alone (roll and pitch) do not give the wave height on a boat: they show how the boat rolls in its own rhythm, not the slope of the water.
+- The sensor should send 10 values per second (its default) or more. Below 1.5 values per second (with the shortest period at 2 s) the adapter warns that short waves are not seen.
+- In calm water the noise of the sensor gives a few centimetres.
 
 ## Device manager
 The tab **Device manager** in the instance settings (or the device manager of admin) shows the sensor as a card with its connection and the angles (roll, pitch, yaw). The details list all enabled values and the connection. From the card you can test the connection and change the serial port and the baud rate.
@@ -59,6 +81,7 @@ The devices app offers its own tile **Wit Motion** instead of the web component 
 ## Changelog
 
 ### **WORK IN PROGRESS**
+* (@GermanBluefox) Added wave height and period from the heave of the sensor (`waves.*`)
 * (@GermanBluefox) Added the short form of the web component manifests (tag, name, icon, size) to `common.webComponents`, so that hosts like Aura can list the components before the adapter is installed; the build writes it with `iob-web-components sync-io-package`
 
 ### 2.2.0 (2026-11-09)

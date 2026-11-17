@@ -6,6 +6,7 @@ const node_fs_1 = require("node:fs");
 const serialport_1 = require("serialport");
 const adapter_core_1 = require("@iobroker/adapter-core"); // Get common adapter utils
 const DeviceManagement_1 = require("./lib/DeviceManagement");
+const waves_1 = require("./lib/waves");
 class WitMotionAdapter extends adapter_core_1.Adapter {
     serialPort;
     reconnectTimer = null;
@@ -20,6 +21,11 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
     /** Serial port for which the "used by another instance" check already ran */
     checkedPath = '';
     deviceManagement = null;
+    /** Vertical acceleration of every packet for the wave statistics, if enabled */
+    heave = null;
+    waveOptions = { minPeriod: 2, maxPeriod: 20 };
+    waveWindowMs = 300000;
+    lowRateWarned = false;
     constructor(options = {}) {
         super({
             ...options,
@@ -465,6 +471,8 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             }
             if (this.tempBytes.length === 20) {
                 const decodedData = WitMotionAdapter.processData(this.tempBytes.slice(2));
+                // Every packet, independent of the throttling of the states; the raw angles describe the sensor frame
+                this.heave?.add(Date.now(), decodedData.acceleration, decodedData.angle);
                 if (this.config.accelerometer) {
                     await this.setStateIfChangedAsync('acceleration.x', decodedData.acceleration.x, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
                     await this.setStateIfChangedAsync('acceleration.y', decodedData.acceleration.y, this.config.accelerometerUpdate, this.config.accelerometerAverageInterval);
@@ -924,6 +932,81 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
             }
         }
     }
+    async syncWaveObjects() {
+        if (!this.config.waves) {
+            if (await this.getObjectAsync('waves')) {
+                await this.delObjectAsync('waves', { recursive: true });
+            }
+            return;
+        }
+        await this.setObjectNotExistsAsync('waves', {
+            type: 'channel',
+            common: { name: 'Waves' },
+            native: {},
+        });
+        const states = [
+            { id: 'height', name: 'Significant wave height', unit: 'm' },
+            { id: 'heightMax', name: 'Highest wave', unit: 'm' },
+            { id: 'period', name: 'Mean wave period', unit: 's' },
+            { id: 'periodPeak', name: 'Peak wave period', unit: 's' },
+        ];
+        for (const { id, name, unit } of states) {
+            await this.setObjectNotExistsAsync(`waves.${id}`, {
+                type: 'state',
+                common: { role: 'value', name, type: 'number', unit, read: true, write: false },
+                native: {},
+            });
+        }
+    }
+    /** Reads the wave settings, starts collecting and writes the wave states periodically */
+    startWaves() {
+        const positive = (value, def) => {
+            const num = parseFloat(value);
+            return num > 0 ? num : def;
+        };
+        const minPeriod = positive(this.config.wavesMinPeriod, 2);
+        let maxPeriod = positive(this.config.wavesMaxPeriod, 20);
+        if (maxPeriod <= minPeriod) {
+            maxPeriod = Math.max(20, minPeriod * 5);
+            this.log.warn(`The longest wave period must be longer than the shortest one, ${maxPeriod} s is used`);
+        }
+        let windowS = positive(this.config.wavesWindow, 300);
+        // Half of the window must hold the longest period several times (see analyzeHeave)
+        if (windowS < maxPeriod * 8) {
+            windowS = maxPeriod * 8;
+            this.log.warn(`The analysis window is too short for waves of ${maxPeriod} s, ${windowS} s is used`);
+        }
+        const updateS = Math.max(5, positive(this.config.wavesUpdate, 30));
+        this.waveOptions = { minPeriod, maxPeriod };
+        this.waveWindowMs = windowS * 1000;
+        this.heave = new waves_1.HeaveRecorder(this.waveWindowMs);
+        this.setInterval(() => {
+            this.updateWaves().catch(err => this.log.error(`Cannot calculate the waves: ${err.message || err}`));
+        }, updateS * 1000);
+    }
+    /** Analyses the collected heave and writes the wave states */
+    async updateWaves() {
+        const heave = this.heave;
+        // Wait for half a window, so the first values do not rest on a few waves
+        if (!heave || heave.duration < this.waveWindowMs / 2) {
+            return;
+        }
+        const rate = heave.sampleRate;
+        if (rate < 3 / this.waveOptions.minPeriod && !this.lowRateWarned) {
+            this.lowRateWarned = true;
+            this.log.warn(`The sensor delivers only ${rate.toFixed(1)} values per second, so waves shorter than ${(3 / rate).toFixed(1)} s are not seen. Set the output rate of the sensor to 10 Hz or more.`);
+        }
+        const result = heave.analyze(this.waveOptions);
+        if (!result) {
+            return;
+        }
+        this.log.debug(`Waves: Hs ${result.height.toFixed(2)} m, Hmax ${result.heightMax.toFixed(2)} m, Tz ${result.period.toFixed(1)} s, Tp ${result.periodPeak.toFixed(1)} s (${result.waves} waves in ${result.duration.toFixed(0)} s at ${result.sampleRate.toFixed(1)} Hz)`);
+        const round = (value, digits) => Math.round(value * 10 ** digits) / 10 ** digits;
+        await this.setStateAsync('waves.height', round(result.height, 2), true);
+        await this.setStateAsync('waves.heightMax', round(result.heightMax, 2), true);
+        await this.setStateAsync('waves.period', round(result.period, 1), true);
+        await this.setStateAsync('waves.periodPeak', round(result.periodPeak, 1), true);
+    }
     async main() {
         // The device manager only reads the configuration and the states, so it works without a sensor too
         this.deviceManagement = new DeviceManagement_1.WitMotionDeviceManagement(this);
@@ -936,6 +1019,10 @@ class WitMotionAdapter extends adapter_core_1.Adapter {
         await this.syncAccelerationObjects();
         await this.syncGyroscopeObjects();
         await this.syncAngleObjects();
+        await this.syncWaveObjects();
+        if (this.config.waves) {
+            this.startWaves();
+        }
         if (!this.isPortConfigured()) {
             return;
         }
