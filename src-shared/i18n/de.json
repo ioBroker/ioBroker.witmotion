@@ -21,6 +21,8 @@
     "wit_Primary view": "Primäre Ansicht",
     "wit_Secondary axis": "Sekundäre Achse",
     "wit_Secondary view": "Sekundäre Ansicht",
+    "wit_Show waves": "Wellen anzeigen",
+    "wit_Show waves help": "Höhe, in der breiten und großen Ansicht auch Länge und Frequenz, wenn die Instanz die Wellen misst",
     "wit_Side": "Seite",
     "wit_Top": "Oben",
     "wit_Value mode": "Wertmodus",

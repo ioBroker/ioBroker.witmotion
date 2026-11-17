@@ -8,8 +8,9 @@
  *
  * The element shows what the vis-2 widget and the tile of the devices app show, with the same pictures
  * (`src-shared/OrientationView.tsx`): a boat, a car or a custom picture tilted by the angle of one or two axes, or a
- * compass for the top view. It reads the states `witmotion.<n>.angle.<axis>` (or `...Avg`) and writes nothing. A
- * click on the smaller views opens the big view in a dialog the host frames.
+ * compass for the top view, and the waves (height, length and frequency) if the instance measures them. It reads the
+ * states `witmotion.<n>.angle.<axis>` (or `...Avg`) and `witmotion.<n>.waves.*` and writes nothing. A click on the
+ * smaller views opens the big view in a dialog the host frames.
  *
  * React is not in the module: it comes from `lib/esm/react-19.js` beside `adapter/`, see `vite.config.ts`.
  */
@@ -18,7 +19,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { DIALOG_CLOSE_EVENT } from '@iobroker/web-components';
 import { defineWebComponent, getThemeCssVariables, IobWebComponent } from '@iobroker/web-components/element';
 
-import { getAngleStateId, toAngle } from '../../src-shared/orientation';
+import { getAngleStateId, getWaveStateId, toAngle, WAVE_VALUES, type WaveValue } from '../../src-shared/orientation';
 import {
     getInstance,
     LAYOUTS,
@@ -41,10 +42,12 @@ interface Details {
     root: Root;
 }
 
-/** The states of the primary and, if chosen, the secondary axis */
+/** The states of the primary and, if chosen, the secondary axis and the waves */
 interface AngleIds {
     id1: string;
     id2: string | null;
+    /** null if the waves are not shown */
+    waves: Record<WaveValue, string> | null;
 }
 
 /**
@@ -58,11 +61,18 @@ function getAngleIds(settings: OrientationElementSettings): AngleIds | null {
     if (!instance) {
         return null;
     }
-    const { axis1, axis2 } = toOrientationSettings(settings);
+    const { axis1, axis2, showWaves } = toOrientationSettings(settings);
     const mode = toValueMode(settings.valueMode);
     return {
         id1: getAngleStateId(instance, axis1, mode),
         id2: axis2 ? getAngleStateId(instance, axis2, mode) : null,
+        waves: showWaves
+            ? {
+                  height: getWaveStateId(instance, 'height'),
+                  length: getWaveStateId(instance, 'length'),
+                  frequency: getWaveStateId(instance, 'frequency'),
+              }
+            : null,
     };
 }
 
@@ -97,7 +107,11 @@ class WitMotionOrientationElement extends IobWebComponent<OrientationElementSett
 
     protected override getStateIds(settings: OrientationElementSettings): (string | null)[] {
         const ids = getAngleIds(settings);
-        return ids ? [ids.id1, ids.id2] : [];
+        if (!ids) {
+            return [];
+        }
+        const waves = ids.waves;
+        return [ids.id1, ids.id2, ...(waves ? WAVE_VALUES.map(value => waves[value]) : [])];
     }
 
     protected override getObjectIds(settings: OrientationElementSettings): string[] {
@@ -113,6 +127,9 @@ class WitMotionOrientationElement extends IobWebComponent<OrientationElementSett
             values: {
                 angle1: toAngle(this.states[ids.id1]?.val),
                 angle2: ids.id2 ? toAngle(this.states[ids.id2]?.val) : null,
+                waveHeight: ids.waves ? toAngle(this.states[ids.waves.height]?.val) : null,
+                waveLength: ids.waves ? toAngle(this.states[ids.waves.length]?.val) : null,
+                waveFrequency: ids.waves ? toAngle(this.states[ids.waves.frequency]?.val) : null,
             },
             name: this.settings.name || '',
             isFloatComma: !!config?.common?.isFloatComma,

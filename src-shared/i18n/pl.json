@@ -21,6 +21,8 @@
     "wit_Primary view": "Widok główny",
     "wit_Secondary axis": "Oś wtórna",
     "wit_Secondary view": "Widok drugorzędny",
+    "wit_Show waves": "Pokaż fale",
+    "wit_Show waves help": "Wysokość, w widoku szerokim i dużym także długość i częstotliwość, jeśli instancja mierzy fale",
     "wit_Side": "Strona",
     "wit_Top": "Szczyt",
     "wit_Value mode": "Tryb wartości",

@@ -23,7 +23,10 @@ import type { ConfigItemPanel, ConfigItemTabs } from '@iobroker/json-config';
 import {
     DEFAULT_INSTANCE,
     getAngleStateId,
+    getWaveStateId,
     toAngle,
+    WAVE_FIELDS,
+    WAVE_VALUES,
     type AxisType,
     type OrientationSettings,
     type ValueMode,
@@ -52,19 +55,27 @@ interface WidgetWitmotionSettings extends CustomWidgetPlugin, OrientationSetting
 interface WidgetWitmotionState extends WidgetGenericState {
     angle1: number | null;
     angle2: number | null;
+    /** Significant wave height, null if the instance does not measure the waves */
+    waveHeight: number | null;
+    waveLength: number | null;
+    waveFrequency: number | null;
     dialogOpen: boolean;
 }
 
+type ValueField = 'angle1' | 'angle2' | 'waveHeight' | 'waveLength' | 'waveFrequency';
+
+/** No values, before subscribing anew */
+const NO_VALUES = { angle1: null, angle2: null, waveHeight: null, waveLength: null, waveFrequency: null };
+
 export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetWitmotionSettings> {
     /** State IDs this tile is subscribed to, with their handlers */
-    private subscribed: { id: string; handler: (id: string, state: ioBroker.State) => void }[] = [];
+    private subscribed: { id: string; field: ValueField; handler: (id: string, state: ioBroker.State) => void }[] = [];
 
     constructor(props: WidgetGenericProps<WidgetWitmotionSettings>) {
         super(props);
         this.state = {
             ...this.state,
-            angle1: null,
-            angle2: null,
+            ...NO_VALUES,
             dialogOpen: false,
         };
     }
@@ -205,6 +216,13 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
                         format: 'radio',
                         horizontal: true,
                     },
+                    showWaves: {
+                        newLine: true,
+                        type: 'checkbox',
+                        label: 'wit_Show waves',
+                        help: 'wit_Show waves help',
+                        default: true,
+                    },
                 },
             },
         };
@@ -227,10 +245,11 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
             s.axis1 !== ps.axis1 ||
             s.axis2 !== ps.axis2 ||
             s.valueMode !== ps.valueMode ||
+            s.showWaves !== ps.showWaves ||
             s.size !== ps.size
         ) {
             this.unsubscribeAngles();
-            this.setState({ angle1: null, angle2: null });
+            this.setState(NO_VALUES);
             this.subscribe();
         }
     }
@@ -240,12 +259,15 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         this.unsubscribeAngles();
     }
 
-    private subscribeAngle(axis: AxisType, field: 'angle1' | 'angle2'): void {
-        const id = getAngleStateId(this.props.settings.instance, axis, this.props.settings.valueMode);
+    private subscribeValue(id: string, field: ValueField): void {
         const handler = (_id: string, state: ioBroker.State): void =>
             this.setState({ [field]: toAngle(state?.val) } as Pick<WidgetWitmotionState, typeof field>);
-        this.subscribed.push({ id, handler });
+        this.subscribed.push({ id, field, handler });
         this.props.stateContext.getState(id, handler);
+    }
+
+    private subscribeAngle(axis: AxisType, field: 'angle1' | 'angle2'): void {
+        this.subscribeValue(getAngleStateId(this.props.settings.instance, axis, this.props.settings.valueMode), field);
     }
 
     private subscribe(): void {
@@ -254,6 +276,11 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         const isWide = this.props.settings.size === '2x1' || this.props.settings.size === '2x0.5';
         if (axis2 && isWide) {
             this.subscribeAngle(axis2, 'angle2');
+        }
+        if (this.props.settings.showWaves !== false) {
+            for (const value of WAVE_VALUES) {
+                this.subscribeValue(getWaveStateId(this.props.settings.instance, value), WAVE_FIELDS[value]);
+            }
         }
     }
 
@@ -271,7 +298,13 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
     private getViewProps(): React.ComponentProps<typeof OrientationCompactView> {
         return {
             settings: this.props.settings,
-            values: { angle1: this.state.angle1, angle2: this.state.angle2 },
+            values: {
+                angle1: this.state.angle1,
+                angle2: this.state.angle2,
+                waveHeight: this.state.waveHeight,
+                waveLength: this.state.waveLength,
+                waveFrequency: this.state.waveFrequency,
+            },
             name: this.props.settings.name,
             accent: this.getAccentColor(),
             isFloatComma: this.props.stateContext.isFloatComma,
@@ -360,7 +393,7 @@ export class WidgetWitmotion extends WidgetGeneric<WidgetWitmotionState, WidgetW
         const close = (): void => this.setState({ dialogOpen: false });
         const viewProps = this.getViewProps();
         // The second axis is subscribed in the wide tiles only
-        if (this.subscribed.length < 2) {
+        if (!this.subscribed.some(({ field }) => field === 'angle2')) {
             viewProps.settings = { ...viewProps.settings, axis2: '' };
         }
         return (

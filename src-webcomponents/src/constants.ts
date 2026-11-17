@@ -58,6 +58,8 @@ export type OrientationElementSettings = {
     axis2?: string;
     view2?: string;
     multiplier2?: number;
+    /** Show the wave height if the instance measures the waves; true if missing */
+    showWaves?: boolean;
 };
 
 /** The words of `src-shared/i18n` the element shows, without the prefix `wit_` */
@@ -101,6 +103,7 @@ export function toOrientationSettings(settings: OrientationElementSettings): Req
         view2: oneOf(settings.view2, VIEWS, 'back'),
         multiplier2: toMultiplier(settings.multiplier2),
         icon2: settings.icon2 || '',
+        showWaves: settings.showWaves !== false,
     };
 }
 

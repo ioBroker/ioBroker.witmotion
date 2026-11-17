@@ -21,6 +21,8 @@
     "wit_Primary view": "主要视图",
     "wit_Secondary axis": "次轴",
     "wit_Secondary view": "次要视图",
+    "wit_Show waves": "显示波浪",
+    "wit_Show waves help": "高度，在宽视图和大视图中还有波长和频率（如果实例测量波浪）",
     "wit_Side": "边",
     "wit_Top": "顶部",
     "wit_Value mode": "值模式",

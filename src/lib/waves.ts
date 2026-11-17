@@ -5,13 +5,28 @@
  * The acceleration is turned into the earth frame and its vertical part is integrated twice in the frequency
  * domain, band-limited to the wave periods of interest, so the drift of the integration is cut off. The
  * resulting heave is evaluated like the record of a wave buoy: significant wave height Hs = 4·σ, the highest
- * single wave and the periods by zero-up-crossing and from the spectral peak.
+ * single wave, the periods by zero-up-crossing and from the spectral peak, and for the peak its frequency and
+ * the length of such waves in deep water.
  *
  * On a boat the result is the motion of the boat: waves much shorter than the hull are damped, and while the
  * boat moves the periods are encounter periods, not the periods of the waves.
  */
 
 export const GRAVITY = 9.80665;
+
+/**
+ * Below this significant wave height (m) the water counts as calm: the noise of the sensor alone gives a few
+ * centimetres, so the periods, the length and the frequency are 0 then.
+ */
+export const CALM_HEIGHT = 0.05;
+
+/**
+ * Length of a wave of the given period in deep water, m: L = g·T²/(2π). In water shallower than half of that,
+ * the waves are shorter.
+ */
+export function deepWaterLength(period: number): number {
+    return (GRAVITY * period * period) / (2 * Math.PI);
+}
 
 export interface Vector {
     x: number;
@@ -31,10 +46,14 @@ export interface WaveResult {
     height: number;
     /** Highest single wave (trough to crest) in the analysed record, m */
     heightMax: number;
-    /** Mean zero-up-crossing period, s */
+    /** Mean zero-up-crossing period, s; 0 in calm water */
     period: number;
-    /** Period of the spectral peak, s */
+    /** Period of the spectral peak, s; 0 in calm water */
     periodPeak: number;
+    /** Deep-water length of the waves of the peak period, m; 0 in calm water */
+    length: number;
+    /** Frequency of the spectral peak, Hz; 0 in calm water */
+    frequency: number;
     /** Number of waves counted by zero-up-crossing */
     waves: number;
     /** Sample rate of the analysed record, Hz */
@@ -275,11 +294,16 @@ export function analyzeHeave(
         }
     }
 
+    const height = 4 * Math.sqrt(variance);
+    // In calm water the record is the noise of the sensor, and its periods mean nothing
+    const frequency = height >= CALM_HEIGHT ? peakFrequency : 0;
     return {
-        height: 4 * Math.sqrt(variance),
+        height,
         heightMax,
-        period: waves ? periodSum / waves : 0,
-        periodPeak: peakFrequency ? 1 / peakFrequency : 0,
+        period: frequency && waves ? periodSum / waves : 0,
+        periodPeak: frequency ? 1 / frequency : 0,
+        length: frequency ? deepWaterLength(1 / frequency) : 0,
+        frequency,
         waves,
         sampleRate,
         duration: (end - start) / sampleRate,

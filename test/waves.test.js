@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert');
-const { analyzeHeave, verticalAcceleration, HeaveRecorder, GRAVITY } = require('../build/lib/waves');
+const { analyzeHeave, deepWaterLength, verticalAcceleration, HeaveRecorder, GRAVITY } = require('../build/lib/waves');
 const data = require('./data.json');
 
 const OPTIONS = { minPeriod: 2, maxPeriod: 20 };
@@ -78,6 +78,15 @@ describe('waves: analysis of the heave', () => {
         near(result.heightMax, 1, 0.03, 'Hmax');
         near(result.period, 6, 0.1, 'Tz');
         near(result.periodPeak, 6, 0.3, 'Tp');
+        near(result.frequency, 1 / 6, 0.01, 'frequency');
+        // a 6 s wave is 56 m long in deep water
+        near(result.length, 56.2, 6, 'length');
+        near(result.length, deepWaterLength(result.periodPeak), 1e-9, 'length of the peak period');
+    });
+
+    it('gives the deep-water length', () => {
+        near(deepWaterLength(10), 156.1, 0.1, 'L(10 s)');
+        near(deepWaterLength(4), 25.0, 0.1, 'L(4 s)');
     });
 
     it('measures swell and wind sea together', () => {
@@ -106,6 +115,12 @@ describe('waves: analysis of the heave', () => {
         // sensor noise about twice that of the MPU9250 (300 µg/√Hz)
         const result = analyzeHeave(record([], { noiseLevel: 0.05 }), 10, OPTIONS);
         assert.ok(result.height < 0.05, `Hs ${result.height}`);
+        // the periods of the noise mean nothing
+        assert.deepStrictEqual(
+            [result.period, result.periodPeak, result.length, result.frequency],
+            [0, 0, 0, 0],
+            'calm water has no periods',
+        );
     });
 
     it('needs a record longer than the longest period', () => {

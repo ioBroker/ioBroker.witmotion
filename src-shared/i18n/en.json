@@ -21,6 +21,8 @@
     "wit_Primary view": "Primary view",
     "wit_Secondary axis": "Secondary axis",
     "wit_Secondary view": "Secondary view",
+    "wit_Show waves": "Show waves",
+    "wit_Show waves help": "Height, in the wide and big views also length and frequency, if the instance measures the waves",
     "wit_Side": "Side",
     "wit_Top": "Top",
     "wit_Value mode": "Value mode",

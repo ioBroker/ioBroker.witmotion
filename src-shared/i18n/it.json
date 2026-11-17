@@ -21,6 +21,8 @@
     "wit_Primary view": "Vista primaria",
     "wit_Secondary axis": "asse secondario",
     "wit_Secondary view": "Vista secondaria",
+    "wit_Show waves": "Mostra le onde",
+    "wit_Show waves help": "Altezza, nelle viste larga e grande anche lunghezza e frequenza, se l'istanza misura le onde",
     "wit_Side": "Lato",
     "wit_Top": "Superiore",
     "wit_Value mode": "Modalità valore",

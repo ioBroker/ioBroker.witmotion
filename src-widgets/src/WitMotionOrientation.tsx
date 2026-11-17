@@ -15,7 +15,10 @@ import type VisRxWidget from '@iobroker/types-vis-2/visRxWidget';
 import {
     DEFAULT_INSTANCE,
     getAngleStateId,
+    getWaveStateId,
     toAngle,
+    WAVE_FIELDS,
+    WAVE_VALUES,
     type AxisType,
     type IconType,
     type OrientationSettings,
@@ -50,11 +53,21 @@ interface WitMotionOrientationRxData {
     axis2: AxisType | '';
     view2: ViewType;
     multiplier2: number | string;
+    showWaves: boolean;
 }
+
+type ValueField = 'angle1' | 'angle2' | 'waveHeight' | 'waveLength' | 'waveFrequency';
+
+/** No values, before subscribing anew */
+const NO_VALUES = { angle1: null, angle2: null, waveHeight: null, waveLength: null, waveFrequency: null };
 
 interface WitMotionOrientationState extends VisRxWidgetState {
     angle1: number | null;
     angle2: number | null;
+    /** Significant wave height, null if the instance does not measure the waves */
+    waveHeight: number | null;
+    waveLength: number | null;
+    waveFrequency: number | null;
     /** Measured size of the widget, for the automatic layout. `width`/`height` belong to vis-2 */
     boxWidth: number;
     boxHeight: number;
@@ -93,8 +106,8 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
     private resizeObserver: ResizeObserver | null = null;
     /** The root element is rendered anew when the layout changes, so it is observed after every update */
     private observedElement: HTMLDivElement | null = null;
-    /** state ID -> angle of the view it feeds */
-    private subscribed: Record<string, 'angle1' | 'angle2'> = {};
+    /** state ID -> value of the view it feeds */
+    private subscribed: Record<string, ValueField> = {};
     /** Key of the current subscription, to see if the settings changed it */
     private subscribedKey = '';
 
@@ -102,8 +115,7 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
         super(props);
         this.state = {
             ...this.state,
-            angle1: null,
-            angle2: null,
+            ...NO_VALUES,
             boxWidth: 0,
             boxHeight: 0,
             dialogOpen: false,
@@ -171,6 +183,13 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
                             name: 'openDialog',
                             type: 'checkbox',
                             label: 'wit_Open dialog',
+                            default: true,
+                        },
+                        {
+                            name: 'showWaves',
+                            type: 'checkbox',
+                            label: 'wit_Show waves',
+                            tooltip: 'wit_Show waves help',
                             default: true,
                         },
                     ],
@@ -292,6 +311,7 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
             view2: rx.view2 || 'back',
             multiplier2: parseFloat(rx.multiplier2 as string) || 1,
             icon2: rx.icon2 || undefined,
+            showWaves: rx.showWaves !== false,
         };
     }
 
@@ -328,7 +348,7 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
     onRxDataChanged(): void {
         if (this.getSubscriptionKey() !== this.subscribedKey) {
             this.unsubscribe();
-            this.setState({ angle1: null, angle2: null });
+            this.setState(NO_VALUES);
             this.subscribe();
         }
     }
@@ -346,10 +366,16 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
 
     private getSubscriptionKey(): string {
         const rx = this.state.rxData;
-        return [rx.instance || DEFAULT_INSTANCE, rx.valueMode, rx.axis1 || 'x', rx.axis2 || ''].join('|');
+        return [
+            rx.instance || DEFAULT_INSTANCE,
+            rx.valueMode,
+            rx.axis1 || 'x',
+            rx.axis2 || '',
+            rx.showWaves !== false,
+        ].join('|');
     }
 
-    private onAngleState = (id: string, state: ioBroker.State | null | undefined): void => {
+    private onValueState = (id: string, state: ioBroker.State | null | undefined): void => {
         const field = this.subscribed[id];
         if (field) {
             this.setState({ [field]: toAngle(state?.val) } as Pick<WitMotionOrientationState, typeof field>);
@@ -364,13 +390,18 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
         if (rx.axis2) {
             this.subscribed[getAngleStateId(rx.instance, rx.axis2, rx.valueMode)] = 'angle2';
         }
-        void this.socket.subscribeState(Object.keys(this.subscribed), this.onAngleState);
+        if (rx.showWaves !== false) {
+            for (const value of WAVE_VALUES) {
+                this.subscribed[getWaveStateId(rx.instance, value)] = WAVE_FIELDS[value];
+            }
+        }
+        void this.socket.subscribeState(Object.keys(this.subscribed), this.onValueState);
     }
 
     private unsubscribe(): void {
         const ids = Object.keys(this.subscribed);
         if (ids.length) {
-            this.socket.unsubscribeState(ids, this.onAngleState);
+            this.socket.unsubscribeState(ids, this.onValueState);
         }
         this.subscribed = {};
         this.subscribedKey = '';
@@ -412,7 +443,13 @@ export default class WitMotionOrientation extends (window.visRxWidget as typeof 
         const settings = this.getSettings();
         const props: OrientationViewProps = {
             settings,
-            values: { angle1: this.state.angle1, angle2: this.state.angle2 },
+            values: {
+                angle1: this.state.angle1,
+                angle2: this.state.angle2,
+                waveHeight: this.state.waveHeight,
+                waveLength: this.state.waveLength,
+                waveFrequency: this.state.waveFrequency,
+            },
             name: this.state.rxData.name,
             isFloatComma: this.props.context.systemConfig?.common?.isFloatComma,
         };

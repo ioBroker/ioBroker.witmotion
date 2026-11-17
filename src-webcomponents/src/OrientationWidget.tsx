@@ -10,12 +10,15 @@ import type { JSX, KeyboardEvent } from 'react';
 
 import {
     formatAngle,
+    formatWaveFrequency,
+    formatWaveHeight,
+    formatWaveLength,
     type AxisType,
     type OrientationSettings,
     type OrientationValues,
     type ViewType,
 } from '../../src-shared/orientation';
-import { Compass, ObjectIcon } from '../../src-shared/OrientationView';
+import { Compass, getShownWaves, ObjectIcon, WaveIcon } from '../../src-shared/OrientationView';
 import type { Layout } from './constants';
 
 export type View = Exclude<Layout, 'auto'>;
@@ -94,6 +97,46 @@ function Name(props: { name: string }): JSX.Element | null {
     return props.name ? <div className="name">{props.name}</div> : null;
 }
 
+/**
+ * The icon and the significant wave height, `detailed` with the length (λ) and the frequency of the waves; nothing if
+ * the waves are switched off or not measured
+ */
+function Waves(props: { data: OrientationData; detailed?: boolean }): JSX.Element | null {
+    const { isFloatComma } = props.data;
+    const waves = getShownWaves(props.data.settings, props.data.values);
+    if (waves === null) {
+        return null;
+    }
+    return (
+        <div className="waves">
+            <WaveIcon />
+            <span className="height">{formatWaveHeight(waves.height, isFloatComma)}</span>
+            {props.detailed && waves.length !== null ? (
+                <span className="detail">
+                    <span className="symbol">λ </span>
+                    {formatWaveLength(waves.length, isFloatComma)}
+                </span>
+            ) : null}
+            {props.detailed && waves.frequency !== null ? (
+                <span className="detail">{formatWaveFrequency(waves.frequency, isFloatComma)}</span>
+            ) : null}
+        </div>
+    );
+}
+
+/** The name and the waves in one line, so the waves need no line of their own */
+function Footer(props: { data: OrientationData; detailed?: boolean }): JSX.Element | null {
+    if (getShownWaves(props.data.settings, props.data.values) === null) {
+        return <Name name={props.data.name} />;
+    }
+    return (
+        <div className="footer">
+            <Name name={props.data.name} />
+            <Waves {...props} />
+        </div>
+    );
+}
+
 /** Picture, value and axis of one axis, one below the other */
 function AnglePanel(props: { data: OrientationData; isSecond: boolean }): JSX.Element {
     const { settings, values, isFloatComma } = props.data;
@@ -132,6 +175,7 @@ export function OrientationViewOf(props: { data: OrientationData; view: View }):
                             isSecond
                         />
                     ) : null}
+                    <Waves data={data} />
                 </>
             );
 
@@ -147,6 +191,10 @@ export function OrientationViewOf(props: { data: OrientationData; view: View }):
                             <Value
                                 data={data}
                                 isSecond={false}
+                            />
+                            <Waves
+                                data={data}
+                                detailed
                             />
                             <Name name={data.name} />
                         </div>
@@ -165,7 +213,10 @@ export function OrientationViewOf(props: { data: OrientationData; view: View }):
                             isSecond
                         />
                     </div>
-                    <Name name={data.name} />
+                    <Footer
+                        data={data}
+                        detailed
+                    />
                 </>
             );
 
@@ -184,6 +235,10 @@ export function OrientationViewOf(props: { data: OrientationData; view: View }):
                             />
                         ) : null}
                     </div>
+                    <Waves
+                        data={data}
+                        detailed
+                    />
                     <Name name={data.name} />
                 </>
             );
@@ -195,7 +250,7 @@ export function OrientationViewOf(props: { data: OrientationData; view: View }):
                         data={data}
                         isSecond={false}
                     />
-                    <Name name={data.name} />
+                    <Footer data={data} />
                 </>
             );
     }

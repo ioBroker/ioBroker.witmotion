@@ -6,16 +6,30 @@
  * The acceleration is turned into the earth frame and its vertical part is integrated twice in the frequency
  * domain, band-limited to the wave periods of interest, so the drift of the integration is cut off. The
  * resulting heave is evaluated like the record of a wave buoy: significant wave height Hs = 4·σ, the highest
- * single wave and the periods by zero-up-crossing and from the spectral peak.
+ * single wave, the periods by zero-up-crossing and from the spectral peak, and for the peak its frequency and
+ * the length of such waves in deep water.
  *
  * On a boat the result is the motion of the boat: waves much shorter than the hull are damped, and while the
  * boat moves the periods are encounter periods, not the periods of the waves.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HeaveRecorder = exports.GRAVITY = void 0;
+exports.HeaveRecorder = exports.CALM_HEIGHT = exports.GRAVITY = void 0;
+exports.deepWaterLength = deepWaterLength;
 exports.verticalAcceleration = verticalAcceleration;
 exports.analyzeHeave = analyzeHeave;
 exports.GRAVITY = 9.80665;
+/**
+ * Below this significant wave height (m) the water counts as calm: the noise of the sensor alone gives a few
+ * centimetres, so the periods, the length and the frequency are 0 then.
+ */
+exports.CALM_HEIGHT = 0.05;
+/**
+ * Length of a wave of the given period in deep water, m: L = g·T²/(2π). In water shallower than half of that,
+ * the waves are shorter.
+ */
+function deepWaterLength(period) {
+    return (exports.GRAVITY * period * period) / (2 * Math.PI);
+}
 /**
  * Vertical (earth frame, pointing up) component of the measured acceleration, in the unit of `acc`.
  *
@@ -232,11 +246,16 @@ function analyzeHeave(acceleration, sampleRate, options) {
             trough = Math.min(trough, cur);
         }
     }
+    const height = 4 * Math.sqrt(variance);
+    // In calm water the record is the noise of the sensor, and its periods mean nothing
+    const frequency = height >= exports.CALM_HEIGHT ? peakFrequency : 0;
     return {
-        height: 4 * Math.sqrt(variance),
+        height,
         heightMax,
-        period: waves ? periodSum / waves : 0,
-        periodPeak: peakFrequency ? 1 / peakFrequency : 0,
+        period: frequency && waves ? periodSum / waves : 0,
+        periodPeak: frequency ? 1 / frequency : 0,
+        length: frequency ? deepWaterLength(1 / frequency) : 0,
+        frequency,
         waves,
         sampleRate,
         duration: (end - start) / sampleRate,

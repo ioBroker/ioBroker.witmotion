@@ -98,7 +98,49 @@ const VIEW_STYLES = `
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: 100%;
+    min-width: 0;
     text-align: center;
+}
+/* the waves: the icon in the color of the water, the height and in the bigger views the length and the frequency */
+.waves {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.3em;
+    row-gap: 2px;
+    min-width: 0;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+.waves .detail {
+    font-weight: 600;
+    margin-left: 0.5em;
+}
+.waves .symbol {
+    font-weight: 500;
+    opacity: 0.7;
+}
+.waves svg {
+    flex: none;
+    display: block;
+    width: 1.1em;
+    height: 1.1em;
+}
+/* the name and the wave height in one line */
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75em;
+    max-width: 100%;
+    min-width: 0;
+}
+.footer .name {
+    flex: 0 1 auto;
+    text-align: left;
 }
 
 /* one axis: the picture, the value and the axis below it, the name at the bottom */
@@ -111,7 +153,8 @@ const VIEW_STYLES = `
 .compact .axis {
     font-size: max(10px, calc(var(--size) * 0.16));
 }
-.compact .name {
+.compact .name,
+.compact .waves {
     font-size: clamp(10px, calc(var(--h) * 0.09), 14px);
 }
 
@@ -136,6 +179,10 @@ const VIEW_STYLES = `
     min-width: 0;
     font-size: clamp(10px, calc(var(--h) * 0.2), 14px);
 }
+.bar .waves {
+    font-size: calc(var(--fs) * 0.75);
+    line-height: 1;
+}
 
 /* wide, one axis: the picture with the value and the name next to it; the value leaves room for -179.9° */
 .wide {
@@ -156,7 +203,8 @@ const VIEW_STYLES = `
 .wide .axis {
     font-size: max(10px, calc(var(--size) * 0.18));
 }
-.wide .name {
+.wide .name,
+.wide .waves {
     font-size: clamp(10px, calc(var(--size) * 0.16), 14px);
     text-align: left;
 }
@@ -177,8 +225,11 @@ const VIEW_STYLES = `
 .wide.two .axis {
     font-size: max(10px, calc(var(--size) * 0.16));
 }
-.wide.two .name {
+.wide.two .name,
+.wide.two .waves {
     font-size: clamp(10px, calc(var(--h) * 0.08), 12px);
+}
+.wide.two .name {
     text-align: center;
 }
 
@@ -203,6 +254,12 @@ const VIEW_STYLES = `
 }
 .full .axis {
     font-size: max(10px, calc(var(--size) * 0.12));
+}
+.full .waves {
+    font-size: calc(var(--size) * 0.11);
+}
+.full.two .waves {
+    font-size: calc(var(--size) * 0.1);
 }
 .full .name {
     font-size: clamp(12px, 4cqmin, 20px);

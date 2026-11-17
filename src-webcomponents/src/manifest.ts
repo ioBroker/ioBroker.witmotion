@@ -32,6 +32,8 @@ export const MANIFEST_WORDS = [
     'Name',
     'Layout',
     'Open dialog',
+    'Show waves',
+    'Show waves help',
     'Icon',
     'Icon top',
     'Icon side',
@@ -120,6 +122,12 @@ export function buildManifest(word: (key: string) => WebComponentText, native: N
                 openDialog: {
                     type: 'checkbox',
                     label: word('Open dialog'),
+                    default: true,
+                },
+                showWaves: {
+                    type: 'checkbox',
+                    label: word('Show waves'),
+                    help: word('Show waves help'),
                     default: true,
                 },
                 dividerIcon: {

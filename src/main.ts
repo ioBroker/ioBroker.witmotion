@@ -1127,6 +1127,8 @@ export class WitMotionAdapter extends Adapter {
             { id: 'heightMax', name: 'Highest wave', unit: 'm' },
             { id: 'period', name: 'Mean wave period', unit: 's' },
             { id: 'periodPeak', name: 'Peak wave period', unit: 's' },
+            { id: 'length', name: 'Wave length (peak period, deep water)', unit: 'm' },
+            { id: 'frequency', name: 'Peak wave frequency', unit: 'Hz' },
         ];
         for (const { id, name, unit } of states) {
             await this.setObjectNotExistsAsync(`waves.${id}`, {
@@ -1184,13 +1186,15 @@ export class WitMotionAdapter extends Adapter {
             return;
         }
         this.log.debug(
-            `Waves: Hs ${result.height.toFixed(2)} m, Hmax ${result.heightMax.toFixed(2)} m, Tz ${result.period.toFixed(1)} s, Tp ${result.periodPeak.toFixed(1)} s (${result.waves} waves in ${result.duration.toFixed(0)} s at ${result.sampleRate.toFixed(1)} Hz)`,
+            `Waves: Hs ${result.height.toFixed(2)} m, Hmax ${result.heightMax.toFixed(2)} m, Tz ${result.period.toFixed(1)} s, Tp ${result.periodPeak.toFixed(1)} s, L ${result.length.toFixed(1)} m, f ${result.frequency.toFixed(3)} Hz (${result.waves} waves in ${result.duration.toFixed(0)} s at ${result.sampleRate.toFixed(1)} Hz)`,
         );
         const round = (value: number, digits: number): number => Math.round(value * 10 ** digits) / 10 ** digits;
         await this.setStateAsync('waves.height', round(result.height, 2), true);
         await this.setStateAsync('waves.heightMax', round(result.heightMax, 2), true);
         await this.setStateAsync('waves.period', round(result.period, 1), true);
         await this.setStateAsync('waves.periodPeak', round(result.periodPeak, 1), true);
+        await this.setStateAsync('waves.length', round(result.length, 1), true);
+        await this.setStateAsync('waves.frequency', round(result.frequency, 3), true);
     }
 
     async main(): Promise<void> {
