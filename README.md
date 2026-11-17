@@ -85,8 +85,7 @@ The devices app offers its own tile **Wit Motion** instead of the web component 
 	### **WORK IN PROGRESS**
 -->
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 2.3.0 (2026-11-17)
 * (@GermanBluefox) Added wave height and period from the heave of the sensor (`waves.*`)
 * (@GermanBluefox) Added the length and the frequency of the waves (`waves.length`, `waves.frequency`)
 * (@GermanBluefox) The devices tile, the vis-2 widget and the web component show the height, length and frequency of the waves
@@ -113,9 +112,6 @@ The devices app offers its own tile **Wit Motion** instead of the web component 
 
 ### 0.0.4 (2026-03-26)
 * (@GermanBluefox) Tests fixed
-
-### 0.0.3 (2026-01-23)
-* (@GermanBluefox) Initial commit
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 
